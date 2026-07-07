@@ -2,12 +2,14 @@
 import asyncio
 import json
 import os
+import secrets
 import sys
 import subprocess
 import threading
 import time
 import yaml
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 import websockets
 
 # Constants
@@ -18,6 +20,7 @@ LOGS_DIR = Path("logs")
 TRAFFIC_LOG = LOGS_DIR / "traffic.jsonl"
 CREDS_LOG = LOGS_DIR / "credentials.jsonl"
 DAEMON_LOG = LOGS_DIR / "daemon.log"
+DAEMON_AUTH_TOKEN = os.environ.get("NEON_SHIELD_DAEMON_TOKEN", "").strip()
 
 # Ensure log directory exists
 LOGS_DIR.mkdir(exist_ok=True)
@@ -377,7 +380,20 @@ async def handle_action(action, params):
     else:
         return {"status": "error", "message": f"Unknown action: {action}"}
 
+def is_client_authorized(websocket):
+    if not DAEMON_AUTH_TOKEN:
+        return True
+
+    path = getattr(websocket, "path", "") or ""
+    token = parse_qs(urlparse(path).query).get("token", [""])[0]
+    return secrets.compare_digest(token, DAEMON_AUTH_TOKEN)
+
 async def ws_handler(websocket):
+    if not is_client_authorized(websocket):
+        log_daemon(f"Rejected unauthenticated client: {websocket.remote_address}")
+        await websocket.close(code=4001, reason="Unauthorized")
+        return
+
     log_daemon(f"Client connected: {websocket.remote_address}")
     connected_clients.add(websocket)
     

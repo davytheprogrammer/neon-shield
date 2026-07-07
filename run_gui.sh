@@ -18,13 +18,18 @@ cd "$SCRIPT_DIR"
 # 1. Start the privileged backend daemon
 echo -e "\n${YELLOW}[*] Starting Privileged Background Daemon...${NC}"
 echo -e "This requires root privileges to configure network interfaces, iptables, and scapy."
+export NEON_SHIELD_DAEMON_URL="ws://127.0.0.1:8765"
 
 # Check if daemon is already running
 if pgrep -f "python3 daemon.py" > /dev/null; then
     echo -e "${GREEN}[✓] Daemon is already running.${NC}"
+    export NEON_SHIELD_DAEMON_TOKEN=""
 else
+    DAEMON_TOKEN=$(python3 -c 'import secrets; print(secrets.token_hex(16))')
+    export NEON_SHIELD_DAEMON_TOKEN="$DAEMON_TOKEN"
+
     # Launch daemon in background with sudo
-    sudo python3 daemon.py &
+    sudo NEON_SHIELD_DAEMON_TOKEN="$DAEMON_TOKEN" python3 daemon.py &
     DAEMON_PID=$!
     
     # Wait to ensure daemon binds successfully

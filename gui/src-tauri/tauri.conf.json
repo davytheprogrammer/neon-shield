@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "gui",
+  "productName": "Neon Shield Ops",
   "version": "0.1.0",
   "identifier": "com.neonshield.app",
   "build": {
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "gui",
-        "width": 800,
-        "height": 600
+        "title": "Neon Shield Ops",
+        "width": 1600,
+        "height": 980
       }
     ],
     "security": {
