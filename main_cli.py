@@ -1426,6 +1426,516 @@ def show_defenses():
 cli.add_command(cli_phase3)
 
 
+cli_phase4 = click.Group(name='phase4', help='🎣 PHASE 4: Phishing Page Generator & Credential Harvesting')
+
+@cli_phase4.command()
+@click.option("--target", type=click.Choice(["gmail", "facebook", "amazon", "all"]), default="all", help="Which pages to host")
+def host_phishing_pages(target):
+    """
+    🎣 Host cloned phishing pages to capture credentials.
+
+    Clones popular login pages with pixel-perfect accuracy:
+    • Gmail login page (email provider)
+    • Facebook login page (social media)
+    • Amazon login page (e-commerce)
+
+    When victim enters credentials, attacker captures them.
+    Page redirects to REAL site so victim doesn't suspect.
+
+    ⚠️ MOST EFFECTIVE ATTACK VECTOR - This is how most accounts are actually compromised.
+    """
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║       🎣 PHISHING PAGE GENERATOR — PHASE 4 ATTACK 🎣                ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Host cloned login pages (Gmail, Facebook, Amazon)                 ║
+║  • Wait for victims to enter credentials                             ║
+║  • Capture username and password                                     ║
+║  • Redirect to real site (victim doesn't suspect)                    ║
+║  • Use credentials to gain full account access                       ║
+║                                                                      ║
+║  WHAT ATTACKER CAN DO:                                               ║
+║  • Complete account takeover (no 2FA bypass needed)                  ║
+║  • Change password and lock out real user                            ║
+║  • Access all account data                                           ║
+║  • Enable 2FA on attacker's device                                   ║
+║  • Reset passwords on other sites (account recovery)                 ║
+║  • Steal money from linked payment methods                           ║
+║  • Impersonate user to contacts and friends                          ║
+║                                                                      ║
+║  WHY THIS IS MOST EFFECTIVE:                                         ║
+║  • Exploits human nature (not code vulnerabilities)                  ║
+║  • Works even with 2FA enabled (user just enters it)                 ║
+║  • Works even with strong passwords (user enters them)               ║
+║  • Can't be patched (exploits humans, not software)                  ║
+║  • 3-15% success rate with bulk phishing                             ║
+║  • 30-40% success rate with targeted phishing                        ║
+║                                                                      ║
+║  LEGAL WARNING:                                                       ║
+║  Phishing is a FEDERAL CRIME (Computer Fraud & Abuse Act, Wire Fraud)║
+║  Unauthorized phishing: up to 15 years imprisonment, $250k+ fines.   ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+    if response != "yes":
+        console.print("[red]Cancelled.[/red]")
+        return
+
+    console.print("\n[bold cyan]🎣 PHISHING PAGES ACTIVE[/bold cyan]")
+    console.print("[yellow]Waiting for victims to enter credentials...[/yellow]\n")
+
+    try:
+        from phishing_generator import PhishingGenerator
+
+        generator = PhishingGenerator()
+
+        if target in ["gmail", "all"]:
+            console.print("[cyan]  ✓ Gmail clone hosting at: http://attacker.com/gmail[/cyan]")
+        if target in ["facebook", "all"]:
+            console.print("[cyan]  ✓ Facebook clone hosting at: http://attacker.com/facebook[/cyan]")
+        if target in ["amazon", "all"]:
+            console.print("[cyan]  ✓ Amazon clone hosting at: http://attacker.com/amazon[/cyan]")
+
+        console.print("\n[bold yellow]📊 PHISHING STATISTICS[/bold yellow]\n")
+
+        console.print(generator.show_phishing_statistics())
+
+        console.print("\n[yellow]Press Ctrl+C to stop[/yellow]")
+
+        try:
+            import time
+            count = 0
+            while True:
+                time.sleep(5)
+                count += 1
+                if count % 12 == 0:  # Every 60 seconds
+                    console.print(f"[dim]Still listening... ({count * 5} seconds elapsed)[/dim]")
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Stopping phishing pages[/yellow]")
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+@cli_phase4.command()
+def demonstrate_phishing():
+    """
+    📚 Demonstrate the complete phishing attack flow.
+
+    Shows:
+    • How victims are targeted
+    • How pages are cloned
+    • How credentials are captured
+    • How attackers gain account access
+    • Why phishing is so effective
+    """
+    console.print("\n[bold cyan]🎣 PHISHING ATTACK DEMONSTRATION[/bold cyan]\n")
+
+    try:
+        from phishing_generator import PhishingGenerator
+        generator = PhishingGenerator()
+        console.print(generator.demonstrate_phishing_attack())
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+
+@cli_phase4.command()
+def show_phishing_defenses():
+    """
+    🛡️ Show how to defend against phishing attacks.
+
+    Covers:
+    • Training & awareness
+    • Email authentication (SPF, DKIM, DMARC)
+    • URL filtering
+    • Multi-factor authentication
+    • Browser warnings
+    • Service-side detection
+    • WebAuthn (phishing-resistant auth)
+    """
+    console.print("\n[bold cyan]🛡️ PHISHING DEFENSES[/bold cyan]\n")
+
+    defenses = """
+DEFENSE #1: User Training & Awareness
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Teach users to be skeptical of email requests
+  ✓ Show how to hover over links to see destination
+  ✓ Encourage typing URLs directly
+  ✓ Warn about urgent/threatening language
+  ✓ Regular phishing simulations to train staff
+  ✓ Recognize social engineering attempts
+
+  Effectiveness: 20-30% (can't rely on this alone)
+  Reason: Even trained users make mistakes
+
+
+DEFENSE #2: Email Authentication (SPF, DKIM, DMARC)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SPF (Sender Policy Framework):
+    • Specifies which servers can send email from domain
+    • Prevents spoofing of sender address
+
+  DKIM (DomainKeys Identified Mail):
+    • Digitally signs emails
+    • Proves email came from legitimate server
+
+  DMARC (Domain-based Message Authentication):
+    • Policy for SPF/DKIM failures
+    • Tells receiving servers what to do with failures
+
+  Effectiveness: 70-80% (stops most bulk phishing)
+  Limitation: Doesn't stop spear phishing with compromised accounts
+
+
+DEFENSE #3: URL Filtering & Sandboxing
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Scan emails for phishing links
+  ✓ Check against known phishing database
+  ✓ Sandbox click detection (click the link in sandbox first)
+  ✓ Check for dynamic domain registration
+  ✓ Detect typosquatting domains
+  ✓ Analyze page content for phishing patterns
+
+  Effectiveness: 60-70% (catches known phishing)
+  Limitation: New phishing sites not yet in database
+
+
+DEFENSE #4: Browser Warnings
+━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Google Safe Browsing warns about phishing sites
+  ✓ SSL/TLS certificate verification
+  ✓ Padlock icon indicates secure connection
+  ✓ Browser shows sender of certificate
+  ✓ Warn on certificate mismatch
+  ✓ Certificate transparency logs
+
+  Effectiveness: 50-60% (users often ignore warnings)
+  Problem: Users click "Advanced" and "Proceed" anyway
+
+
+DEFENSE #5: Multi-Factor Authentication (MFA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ❌ Text Message 2FA: Can be intercepted (SIM swapping)
+  ✓  Authenticator App: Better (time-based codes)
+  ✓✓ Hardware Keys: Best (physical device required)
+  ✓✓✓ WebAuthn/FIDO2: Best (phishing-resistant)
+
+  How it stops phishing:
+    • Even if password stolen, attacker needs 2FA code
+    • Harder to trick user into giving up 2FA code
+    • Two-factor phishing exists (attacker asks for code)
+
+  Effectiveness: 95%+ with hardware keys or WebAuthn
+  Limitation: Most users don't use MFA
+
+
+DEFENSE #6: Email Forwarding Detection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Alert user when email forwarding is enabled
+  ✓ Require confirmation before forwarding starts
+  ✓ Log all forwarding rule changes
+  ✓ Disable forwarding to unknown domains
+
+  Why: Attacker changes forwarding to steal recovery emails
+  Effectiveness: 80% (stops account takeover)
+
+
+DEFENSE #7: Unusual Login Detection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Detect login from new device
+  ✓ Detect login from new location
+  ✓ Detect login from impossible location (flew across world in 1 min)
+  ✓ Detect multiple failed login attempts
+  ✓ Detect login outside normal hours
+
+  Response:
+    • Send confirmation email
+    • Require phone verification
+    • Block login and alert user
+    • Prompt for additional verification
+
+  Effectiveness: 70% (catches stolen credentials)
+  Limitation: Attacker might be in same location
+
+
+DEFENSE #8: Password Manager
+━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Only autofills on exact domain match
+  ✓ Won't autofill if domain doesn't match
+  ✓ Shows notification of domain mismatch
+  ✓ Creates strong unique passwords
+  ✓ Detects password reuse
+
+  How it catches phishing:
+    • User goes to phishing.com pretending to be gmail.com
+    • Password manager sees domain mismatch
+    • Won't autofill password
+    • User notices something wrong
+
+  Effectiveness: 60-70% (catches domain typos)
+  Limitation: Users might manually type password anyway
+
+
+DEFENSE #9: WebAuthn / FIDO2 (Best Defense)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  How it works:
+    1. Instead of password, use hardware key or biometric
+    2. Hardware key verifies the domain before signing
+    3. Phishing site can't trick key (key checks domain)
+    4. Even if password stolen, hardware key required
+
+  Why it's phishing-proof:
+    • Attacker can't access hardware key
+    • Key verifies you're on real domain
+    • No way to phish WebAuthn
+    • No credential to steal (key is local)
+
+  Effectiveness: 99%+ (completely phishing-resistant)
+  Adoption: Slowly increasing (major sites support it)
+
+
+BEST DEFENSE COMBINATION:
+━━━━━━━━━━━━━━━━━━━━━
+  1. WebAuthn / FIDO2 (phishing-resistant)
+  2. Email authentication (SPF/DKIM/DMARC)
+  3. Unusual login detection
+  4. MFA with hardware key
+  5. Email forwarding alerts
+  6. Password manager (catches domain typos)
+  7. User training
+  8. URL filtering
+  9. Browser warnings
+  10. Incident response plan (if phished)
+
+
+WHAT DOESN'T WORK:
+━━━━━━━━━━━━━━━
+  ❌ Password complexity alone (still phishable)
+  ❌ Browser warnings alone (users ignore them)
+  ❌ Email filters alone (evolution is too fast)
+  ❌ Tech-savvy users (they can also be tricked)
+  ❌ Security awareness training alone (users still fail)
+
+
+THE REALITY:
+━━━━━━━━━━
+Phishing will NEVER be completely defeated because:
+  • It exploits human nature, not code
+  • Easy to execute, cheap to scale
+  • Only needs 1% success rate (millions still get phished)
+  • Continuously evolves
+  • Works even against defenses
+
+BEST STRATEGY:
+  1. Implement MULTIPLE layers
+  2. Use WebAuthn when possible
+  3. Monitor for compromise (unusual activity)
+  4. Train users (but don't rely on it)
+  5. Respond quickly if phished (change all passwords)
+"""
+    console.print(defenses)
+
+
+@cli_phase4.command()
+def show_phishing_types():
+    """
+    📋 Show different types of phishing attacks.
+
+    Covers:
+    • Bulk phishing (generic, low success)
+    • Spear phishing (targeted, high success)
+    • Whaling (C-level executives)
+    • Clone phishing (replying to previous emails)
+    • Vishing (voice phishing)
+    • Smishing (SMS phishing)
+    """
+    console.print("\n[bold cyan]📋 TYPES OF PHISHING ATTACKS[/bold cyan]\n")
+
+    phishing_types = """
+1. BULK PHISHING (Generic Phishing)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Target: Mass mailing (millions of recipients)
+  Example: "Your Amazon account needs verification. Click here."
+  Success rate: 1-3% (thousands of victims from millions sent)
+  Cost: Cheap (automated)
+  Effort: Low (generic email)
+
+  Attacker's goal:
+    ✓ Cast wide net
+    ✓ Only need small percentage to succeed
+    ✓ Scalable (send to millions)
+    ✓ Profitable (1% of millions is still tens of thousands)
+
+  Defense difficulty: Medium
+  Can be caught by email filters
+
+
+2. SPEAR PHISHING (Targeted Phishing)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Target: Specific person or department
+  Research: LinkedIn, Twitter, company website
+  Example: "Hi John, the CEO needs a wire transfer ASAP. Account: xxx"
+  Success rate: 30-40% (much higher because personalized)
+  Cost: Moderate (research required)
+  Effort: Medium (customized per target)
+
+  How it works:
+    1. Research target on LinkedIn
+    2. Learn their job, manager, company, interests
+    3. Create personalized email
+    4. References real people they know
+    5. Uses correct company name/terminology
+    6. Much more believable than bulk phishing
+
+  Defense difficulty: Hard
+  Email authentication helps, but filters don't catch personalized attacks
+
+
+3. WHALING (Executive Phishing)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Target: C-level executives (CEO, CFO, President)
+  Value: Very high (can authorize large wire transfers)
+  Success rate: 20-30% (fewer recipients, lower volume)
+  Cost: High (extensive research)
+  Effort: High (highly targeted)
+
+  Attack vector:
+    "Hi John (CEO), the board requested a $2M wire transfer
+     to this account for acquisition. Urgent - complete today."
+
+  Why it works:
+    • CEOs more likely to be targeted
+    • Less technical knowledge than IT staff
+    • Pressure to act quickly
+    • Large financial authorization
+    • One success = millions
+
+  Defense difficulty: Very hard
+  Even executives can fall for well-crafted phishing
+
+
+4. CLONE PHISHING (Reply-Based)
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Original email: "Customer sent you invoice for $5000"
+  Attacker replaces link with phishing page
+  Victim trusts sender (they know them)
+  Success rate: 50%+ (victim recognizes sender)
+
+  How it works:
+    1. Attacker intercepts legitimate email
+    2. Extracts recipient list
+    3. Creates nearly identical email
+    4. Replaces legitimate link with phishing link
+    5. Sends to entire recipient list
+
+  Example:
+    Original: "Here's your invoice: click here"
+    Cloned: "Here's your invoice: click here" (different link)
+
+  Defense difficulty: Very hard
+  Looks legitimate (because it's based on real email)
+
+
+5. VISHING (Voice Phishing)
+━━━━━━━━━━━━━━━━━━━━━━━
+  Medium: Phone call (not email)
+  Example: "Hi John, this is the bank. We detected fraud on your account.
+            To verify, please provide your account number and password."
+  Success rate: 15-25% (personal interaction)
+  Cost: Very cheap (just phone calls)
+  Effort: Low (scripts)
+
+  Why it works:
+    • Voice sounds more "official" than email
+    • Harder to verify caller identity
+    • People tend to comply with authority
+    • Creates urgency ("Your account compromised!")
+
+  Defense: Hang up, call bank's official number back
+
+
+6. SMISHING (SMS/Text Phishing)
+━━━━━━━━━━━━━━━━━━━━━━━━━
+  Medium: Text message / SMS
+  Example: "Amazon: Your account suspended. Click to verify: http://..."
+  Success rate: 20-30% (people trust SMS less, but click anyway)
+  Cost: Very cheap
+  Effort: Low
+
+  Why it's increasing:
+    • People check text messages more than email
+    • Less filtering on SMS than email
+    • Mobile users click more
+    • Seems more "official"
+
+  Defense: Don't click links in SMS, call company directly
+
+
+7. QR CODE PHISHING
+━━━━━━━━━━━━━━━
+  Medium: QR codes in physical mail/posters
+  Victim scans with phone → taken to phishing page
+  Success rate: 10-20% (relatively new)
+  Cost: Very cheap
+  Effort: Low
+
+  Examples:
+    • Fake parking ticket with QR code
+    • Poster with "Scan for WiFi password"
+    • Mail with "Scan to verify package"
+
+  Defense: Don't scan QR codes from unknown sources
+
+
+8. BUSINESS EMAIL COMPROMISE (BEC)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Method: Compromise real email account (via phishing)
+  Use: Send legitimate-looking emails from real account
+  Example: CEO's account sending "wire transfer needed"
+  Success rate: 50%+ (it's actually from real account)
+  Cost: Moderate (compromise takes time)
+  Effort: High
+
+  Why it's most dangerous:
+    • Email actually comes from real company account
+    • No spoofing, no cloning
+    • Email authentication passes (it's the real account)
+    • Very hard to detect
+
+
+COMPARISON:
+━━━━━━━━━
+
+Type           │ Target        │ Success │ Cost  │ Effort │ Detection
+───────────────┼──────────────┼─────────┼───────┼────────┼──────────
+Bulk           │ Millions      │ 1-3%    │ $     │ Low    │ Easy
+Spear          │ Dozens        │ 30-40%  │ $$    │ Medium │ Medium
+Whaling        │ Executives    │ 20-30%  │ $$$   │ High   │ Hard
+Clone          │ Hundreds      │ 50%+    │ $     │ Low    │ Hard
+Vishing        │ Individual    │ 15-25%  │ $     │ Low    │ Medium
+Smishing       │ Millions      │ 20-30%  │ $     │ Low    │ Medium
+QR Code        │ Individual    │ 10-20%  │ $     │ Low    │ Medium
+BEC            │ Organization  │ 50%+    │ $$$$  │ High   │ Very Hard
+
+ATTACKER'S CHOICE:
+  • Maximum profit per person: Whaling & BEC
+  • Maximum total victims: Bulk & Smishing
+  • Highest success rate: Clone & BEC
+  • Easiest to execute: Bulk
+  • Best ROI: Spear phishing (balanced)
+"""
+    console.print(phishing_types)
+
+
+cli.add_command(cli_phase4)
+
+
 def main():
     """Entry point."""
     # Only require root for commands that actually need it, not for help
