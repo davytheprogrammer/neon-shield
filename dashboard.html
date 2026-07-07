@@ -382,6 +382,14 @@
                 <span class="metric-label">Replaced Images</span>
                 <span class="metric-val green" id="replaced-count">0</span>
             </div>
+            <div class="card metric-card">
+                <span class="metric-label">Auto Network Mode</span>
+                <span class="metric-val" id="auto-mode-status">OFF</span>
+            </div>
+            <div class="card metric-card" id="spoofed-card" style="display: none;">
+                <span class="metric-label">Devices Under Interception</span>
+                <span class="metric-val cyan" id="spoofed-count">0</span>
+            </div>
         </section>
 
         <section class="card ca-section">
@@ -403,30 +411,45 @@
             </div>
         </section>
 
-        <h3 class="instructions-header">Device Configuration Guides</h3>
+        <section class="card" style="background: rgba(255, 68, 68, 0.08); border-color: rgba(255, 68, 68, 0.3); margin-bottom: 1.5rem;">
+            <div style="color: #ff8888; font-weight: 600; margin-bottom: 0.5rem;">🔴 EDUCATIONAL USE ONLY</div>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                NEON-SHIELD is an authorized-use-only tool for demonstrating network security risks in controlled
+                environments. It performs active MITM attacks (ARP spoofing, TLS decryption, credential capture) that are
+                <strong>illegal without explicit authorization</strong>. Your use confirms that you own every device and network
+                you're targeting, or hold written authorization from the owner/operator. Unauthorized use violates computer
+                fraud, wiretap, and privacy laws in most jurisdictions. See README.md for full disclaimer.
+            </p>
+        </section>
+
+        <h3 class="instructions-header">Zero-Config Automatic Interception</h3>
 
         <section class="accordion">
-            <div class="accordion-item">
+            <div class="accordion-item active">
                 <button class="accordion-trigger">
-                    <span>1. Connect and Route Device Traffic</span>
+                    <span>How It Works (No Per-Device Setup Required)</span>
                     <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
-                <div class="accordion-content">
+                <div class="accordion-content" style="max-height: 1000px;">
                     <div class="accordion-body">
-                        <p>To inspect traffic from a phone or other computer on the same Wi-Fi network:</p>
+                        <p>NEON-SHIELD automatically intercepts traffic from all devices on your network without requiring
+                        any manual configuration on those devices:</p>
                         <ol>
-                            <li>Ensure your testing device is connected to the <strong>same Wi-Fi network</strong> as this host machine.</li>
-                            <li>Open your testing device's Wi-Fi network settings.</li>
-                            <li>Locate the <strong>Proxy</strong> setting (usually under "Advanced" or "Configure Proxy") and change it to <strong>Manual</strong>.</li>
-                            <li>Enter the following credentials:</li>
+                            <li><strong>ARP Spoofing:</strong> This host announces itself as the network gateway via forged ARP
+                            replies, causing all target devices to route their traffic through this machine.</li>
+                            <li><strong>Transparent Redirect:</strong> iptables rules silently redirect HTTP/HTTPS traffic
+                            (ports 80 & 443) to the proxy's transparent listeners.</li>
+                            <li><strong>TLS Interception:</strong> The proxy intercepts HTTPS connections by generating
+                            certificates on-the-fly signed by a local Root CA. To see the content, devices must separately
+                            download and trust this CA (see below).</li>
+                            <li><strong>Traffic Logging:</strong> All intercepted traffic is logged and visible in the
+                            loopback control panel: <code>{CONTROL_PANEL_URL}</code></li>
                         </ol>
-                        <div class="code-box">
-                            <span>Host/IP: {LOCAL_IP}</span>
-                            <button class="copy-btn" onclick="copyText('{LOCAL_IP}')">Copy</button>
-                        </div>
-                        <div class="code-box">
-                            <span>Port: {PORT}</span>
-                            <button class="copy-btn" onclick="copyText('{PORT}')">Copy</button>
+                        <div class="note-box" style="background: rgba(255, 170, 0, 0.05); border-left-color: #ffaa00; color: #ffd073;">
+                            <strong>🔒 IMPORTANT:</strong> Unlike silent tools, devices connecting to
+                            <strong>untrustworthy Wi-Fi</strong> will still see TLS certificate errors in their browser, even if
+                            intercepted. This tool is NOT designed to bypass cert validation warnings — it's designed to show
+                            why you should never trust untrusted networks.
                         </div>
                     </div>
                 </div>
@@ -434,7 +457,7 @@
 
             <div class="accordion-item">
                 <button class="accordion-trigger">
-                    <span>2. Apple iOS Certificate Trust Setup</span>
+                    <span>1. Apple iOS Certificate Trust Setup</span>
                     <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 <div class="accordion-content">
@@ -453,7 +476,7 @@
 
             <div class="accordion-item">
                 <button class="accordion-trigger">
-                    <span>3. Google Android Certificate Trust Setup</span>
+                    <span>2. Google Android Certificate Trust Setup</span>
                     <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 <div class="accordion-content">
@@ -472,7 +495,7 @@
 
             <div class="accordion-item">
                 <button class="accordion-trigger">
-                    <span>4. Desktop Browsers & OS Trust</span>
+                    <span>3. Desktop Browsers & OS Trust</span>
                     <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 <div class="accordion-content">
@@ -547,6 +570,22 @@
                     if (replacedEl.innerText !== String(data.images_substituted)) {
                         replacedEl.innerText = data.images_substituted;
                         flashElement(replacedEl, 'var(--accent-green)');
+                    }
+
+                    const autoStatusEl = document.getElementById('auto-mode-status');
+                    const spoofedCard = document.getElementById('spoofed-card');
+                    const spoofedCountEl = document.getElementById('spoofed-count');
+                    if (data.auto_mode_active) {
+                        autoStatusEl.innerText = 'ACTIVE';
+                        autoStatusEl.classList.add('green');
+                        spoofedCard.style.display = '';
+                        const targets = data.spoofed_targets || [];
+                        spoofedCountEl.innerText = targets.length;
+                        spoofedCountEl.title = targets.join(', ');
+                    } else {
+                        autoStatusEl.innerText = 'OFF';
+                        autoStatusEl.classList.remove('green');
+                        spoofedCard.style.display = 'none';
                     }
                 }
             } catch (e) {

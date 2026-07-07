@@ -1,0 +1,25 @@
+[Unit]
+Description=NEON-SHIELD MITM Proxy Lab (Educational Use Only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/neon-shield
+ExecStart=/usr/bin/python3 /opt/neon-shield/main_cli.py start -y
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=neon-shield
+
+# Safety: stop service on failure
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Cleanup on stop
+ExecStop=/bin/bash /opt/neon-shield/cleanup.sh
+
+[Install]
+WantedBy=multi-user.target
