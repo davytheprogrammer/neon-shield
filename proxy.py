@@ -674,6 +674,41 @@ def run_auto_mode(args):
     except KeyboardInterrupt:
         pass
 
+def run_auto_mode_with_config(config):
+    global TRANSPARENT_HTTP_PORT, TRANSPARENT_HTTPS_PORT, DASHBOARD_PORT, CONTROL_PANEL_PORT, CONTROL_PANEL_HOST, HOST
+    global ca, traffic_log, creds_log
+
+    # Re-configure dynamic content rules
+    import content_rules
+    content_rules.configure(
+        enable_image_swap=config.enable_image_swap,
+        enable_html_banner=config.enable_html_banner,
+        banner_text=config.banner_text
+    )
+
+    # Re-initialize CertificateAuthority with configured certs directory
+    ca = CertificateAuthority(certs_dir=config.certs_dir)
+
+    # Re-initialize logs with configured paths
+    traffic_log = TrafficLog(maxlen=500, log_path=config.traffic_log_file if config.enable_traffic_log else None)
+    creds_log = TrafficLog(maxlen=200, log_path=config.creds_log_file if config.enable_creds_log else None)
+
+    # Set up global host/ports
+    TRANSPARENT_HTTP_PORT = config.http_port
+    TRANSPARENT_HTTPS_PORT = config.https_port
+    DASHBOARD_PORT = config.dashboard_port
+    CONTROL_PANEL_PORT = config.control_panel_port
+    CONTROL_PANEL_HOST = config.control_panel_host
+    HOST = config.dashboard_host
+
+    class Args:
+        yes = not config.require_confirmation
+        iface = config.interface
+        targets = config.targets
+        dns_redirect = ",".join(f"{k}:{v}" for k, v in config.dns_redirects.items()) if (config.dns_enabled and config.dns_redirects) else ""
+
+    run_auto_mode(Args())
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="NEON-SHIELD MITM Proxy Lab (Educational Use Only)",

@@ -1,0 +1,33 @@
+[2026-07-07 16:36:00] [Daemon] Starting privileged backend daemon on ws://127.0.0.1:8765
+[2026-07-07 16:36:00] [Daemon] Starting log tailer for traffic.jsonl
+[2026-07-07 16:36:00] [Daemon] Starting log tailer for credentials.jsonl
+[2026-07-07 16:36:02] [Daemon] Client connected: ('127.0.0.1', 36960)
+[2026-07-07 16:36:02] [Daemon] Failed to get system info: No module named 'scapy'
+[2026-07-07 16:36:26] [Daemon] Tailer for credentials.jsonl cancelled.
+[2026-07-07 16:36:26] [Daemon] Shutting down daemon...
+[2026-07-07 16:36:26] [Daemon] Tailer for traffic.jsonl cancelled.
+[2026-07-07 16:37:03] [Daemon] Starting privileged backend daemon on ws://127.0.0.1:8765
+[2026-07-07 16:37:03] [Daemon] Starting log tailer for traffic.jsonl
+[2026-07-07 16:37:03] [Daemon] Starting log tailer for credentials.jsonl
+[2026-07-07 16:37:05] [Daemon] Client connected: ('127.0.0.1', 41832)
+[2026-07-07 16:37:12] [Daemon] Performing subnet ARP scan on wlp2s0 / 192.168.100.54/24...
+[2026-07-07 16:37:42] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.10,192.168.100.28,192.168.100.5,192.168.100.24,192.168.100.18,192.168.100.81,192.168.100.123,192.168.100.198,192.168.100.212
+[2026-07-07 16:37:42] [Daemon] Process reader started for mitm (PID: 899162)
+[2026-07-07 16:37:42] [Daemon] Process mitm exited with code 1
+[2026-07-07 16:37:46] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.10,192.168.100.28,192.168.100.5,192.168.100.24,192.168.100.18,192.168.100.81,192.168.100.123,192.168.100.198,192.168.100.212
+[2026-07-07 16:37:46] [Daemon] Process reader started for mitm (PID: 899253)
+[2026-07-07 16:37:46] [Daemon] Process mitm exited with code 1
+[2026-07-07 16:37:47] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.10,192.168.100.28,192.168.100.5,192.168.100.24,192.168.100.18,192.168.100.81,192.168.100.123,192.168.100.198,192.168.100.212
+[2026-07-07 16:37:47] [Daemon] Process reader started for mitm (PID: 899264)
+[2026-07-07 16:37:47] [Daemon] Process mitm exited with code 1
+[2026-07-07 16:37:50] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.10,192.168.100.28,192.168.100.5,192.168.100.24,192.168.100.18,192.168.100.81,192.168.100.123,192.168.100.198,192.168.100.212
+[2026-07-07 16:37:50] [Daemon] Process reader started for mitm (PID: 899346)
+[2026-07-07 16:37:50] [Daemon] Process mitm exited with code 1
+[2026-07-07 16:39:37] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.10,192.168.100.28,192.168.100.5,192.168.100.24,192.168.100.18,192.168.100.81,192.168.100.123,192.168.100.198,192.168.100.212
+[2026-07-07 16:39:37] [Daemon] Process reader started for mitm (PID: 902324)
+[2026-07-07 16:39:38] [Daemon] Process mitm exited with code 1
+[2026-07-07 16:41:52] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.10,192.168.100.28,192.168.100.5,192.168.100.24,192.168.100.18,192.168.100.81,192.168.100.123,192.168.100.198,192.168.100.212
+[2026-07-07 16:41:52] [Daemon] Process reader started for mitm (PID: 906140)
+[2026-07-07 16:46:44] [Daemon] Performing subnet ARP scan on wlp2s0 / 192.168.100.54/24...
+[2026-07-07 16:47:53] [Daemon] Client connected: ('127.0.0.1', 49678)
+[2026-07-07 16:49:37] [Daemon] Performing subnet ARP scan on wlp2s0 / 192.168.100.54/24...

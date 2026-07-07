@@ -30,6 +30,23 @@ BANNER_HTML = (
     b"authorized security research demo.</div>"
 )
 
+_enable_image_swap = True
+_enable_html_banner = True
+
+def configure(enable_image_swap=True, enable_html_banner=True, banner_text=None):
+    global _enable_image_swap, _enable_html_banner, BANNER_HTML
+    _enable_image_swap = enable_image_swap
+    _enable_html_banner = enable_html_banner
+    if banner_text is not None:
+        BANNER_HTML = (
+            b'<div style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;'
+            b'background:#0f172a;color:#39ff14;font-family:monospace;font-size:13px;'
+            b'padding:6px 12px;border-top:2px solid #39ff14;opacity:0.94;">'
+            + banner_text.encode('utf-8', errors='ignore') +
+            b'</div>'
+        )
+
+
 
 def is_image_body(body):
     """Detects if the response body starts with common image magic bytes."""
@@ -128,15 +145,17 @@ def apply_content_rules(response_bytes, request_path):
     header_lines = header_part.split(b"\r\n")
     headers = _parse_headers(header_lines)
 
-    is_image, content_type = _is_image_response(headers, request_path, body_part)
-    if is_image:
-        print(f"[Rules] image-swap matched ({content_type or 'magic-bytes'}) for {request_path}")
-        return _build_image_replacement(), "image-swap"
+    if _enable_image_swap:
+        is_image, content_type = _is_image_response(headers, request_path, body_part)
+        if is_image:
+            print(f"[Rules] image-swap matched ({content_type or 'magic-bytes'}) for {request_path}")
+            return _build_image_replacement(), "image-swap"
 
-    injected = _inject_banner(header_lines, headers, body_part)
-    if injected is not None:
-        print(f"[Rules] html-banner matched for {request_path}")
-        return injected, "html-banner"
+    if _enable_html_banner:
+        injected = _inject_banner(header_lines, headers, body_part)
+        if injected is not None:
+            print(f"[Rules] html-banner matched for {request_path}")
+            return injected, "html-banner"
 
     return response_bytes, None
 
