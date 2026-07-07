@@ -1,0 +1,3 @@
+[2026-07-07 16:54:30] [Daemon] Starting privileged backend daemon on ws://127.0.0.1:8766
+[2026-07-07 16:54:30] [Daemon] Starting log tailer for traffic.jsonl
+[2026-07-07 16:54:30] [Daemon] Starting log tailer for credentials.jsonl

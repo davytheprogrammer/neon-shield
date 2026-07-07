@@ -14,9 +14,9 @@ import websockets
 
 # Constants
 HOST = "127.0.0.1"
-PORT = 8765
+PORT = 8766
 CONFIG_PATH = Path("neon-shield.yml")
-LOGS_DIR = Path("logs")
+LOGS_DIR = Path("logs_user")
 TRAFFIC_LOG = LOGS_DIR / "traffic.jsonl"
 CREDS_LOG = LOGS_DIR / "credentials.jsonl"
 DAEMON_LOG = LOGS_DIR / "daemon.log"
@@ -99,6 +99,87 @@ def get_system_info():
             "cidr": "127.0.0.1/24",
             "error": str(e)
         }
+
+def get_network_info():
+    """Returns rich WiFi and network context using iwconfig / nmcli / ip."""
+    info = {
+        "ssid": None, "bssid": None, "interface": None,
+        "frequency": None, "channel": None, "signal_dbm": None,
+        "signal_quality": None, "bitrate": None, "security": None,
+        "tx_power": None, "local_ip": None, "gateway": None,
+        "mode": "unknown"
+    }
+    try:
+        # Get default interface and IP info
+        route_out = subprocess.check_output(
+            ["ip", "-4", "route", "show", "default"],
+            stderr=subprocess.DEVNULL, text=True
+        ).strip()
+        if route_out:
+            parts = route_out.split()
+            info["gateway"] = parts[2] if len(parts) > 2 else None
+            iface = parts[4] if len(parts) > 4 else None
+            info["interface"] = iface
+            # Get local IP
+            try:
+                addr_out = subprocess.check_output(
+                    ["ip", "-4", "-o", "addr", "show", "dev", iface],
+                    stderr=subprocess.DEVNULL, text=True
+                ).strip()
+                if addr_out:
+                    info["local_ip"] = addr_out.split()[3].split("/")[0]
+            except Exception:
+                pass
+            # Try iwconfig for WiFi info
+            try:
+                iwconfig_out = subprocess.check_output(
+                    ["iwconfig", iface], stderr=subprocess.DEVNULL, text=True
+                )
+                import re as _re
+                ssid_m = _re.search(r'ESSID:"([^"]+)"', iwconfig_out)
+                if ssid_m:
+                    info["ssid"] = ssid_m.group(1)
+                    info["mode"] = "wifi"
+                bssid_m = _re.search(r'Access Point: ([0-9A-Fa-f:]{17})', iwconfig_out)
+                if bssid_m:
+                    info["bssid"] = bssid_m.group(1)
+                freq_m = _re.search(r'Frequency:(\S+\s+\S+)', iwconfig_out)
+                if freq_m:
+                    info["frequency"] = freq_m.group(1).strip()
+                bitrate_m = _re.search(r'Bit Rate=(\S+\s+\S+)', iwconfig_out)
+                if bitrate_m:
+                    info["bitrate"] = bitrate_m.group(1).strip()
+                sig_m = _re.search(r'Signal level=(-?\d+)\s*dBm', iwconfig_out)
+                if sig_m:
+                    info["signal_dbm"] = int(sig_m.group(1))
+                qual_m = _re.search(r'Link Quality=(\d+)/(\d+)', iwconfig_out)
+                if qual_m:
+                    info["signal_quality"] = int(int(qual_m.group(1)) / int(qual_m.group(2)) * 100)
+                txpwr_m = _re.search(r'Tx-Power=(\S+)\s+dBm', iwconfig_out)
+                if txpwr_m:
+                    info["tx_power"] = txpwr_m.group(1) + " dBm"
+            except Exception:
+                info["mode"] = "ethernet"
+            # Try nmcli for security type and channel
+            try:
+                if info["ssid"]:
+                    nmcli_out = subprocess.check_output(
+                        ["nmcli", "-t", "-f", "ACTIVE,SSID,SIGNAL,SECURITY,FREQ,CHAN",
+                         "device", "wifi"],
+                        stderr=subprocess.DEVNULL, text=True
+                    )
+                    for line in nmcli_out.strip().splitlines():
+                        cols = line.split(":")
+                        if len(cols) >= 6 and cols[0] == "yes":
+                            info["security"] = cols[3] if cols[3] else "Open"
+                            info["channel"] = cols[5] if cols[5] else None
+                            break
+            except Exception:
+                pass
+    except Exception as e:
+        log_daemon(f"get_network_info error: {e}")
+    return info
+
 
 def read_last_lines(file_path, count=50):
     if not file_path.exists():
@@ -218,6 +299,33 @@ async def handle_action(action, params):
     elif action == "get_system_info":
         return {"status": "success", "data": get_system_info()}
 
+    elif action == "get_network_info":
+        return {"status": "success", "data": get_network_info()}
+
+    elif action == "get_traffic_stats":
+        traffic_history = read_last_lines(TRAFFIC_LOG, 500)
+        stats = {
+            "total": len(traffic_history),
+            "by_method": {},
+            "by_protocol": {"http": 0, "https": 0},
+            "by_status": {},
+            "intercepted": 0,
+            "total_bytes": 0,
+        }
+        for entry in traffic_history:
+            m = entry.get("method", "?").upper()
+            stats["by_method"][m] = stats["by_method"].get(m, 0) + 1
+            proto = entry.get("protocol", "http").lower()
+            if proto in stats["by_protocol"]:
+                stats["by_protocol"][proto] += 1
+            s = str(entry.get("status", "?"))
+            s_bucket = s[0] + "xx" if s and s[0].isdigit() else "?"
+            stats["by_status"][s_bucket] = stats["by_status"].get(s_bucket, 0) + 1
+            if entry.get("intercepted"):
+                stats["intercepted"] += 1
+            stats["total_bytes"] += entry.get("size", 0) or 0
+        return {"status": "success", "stats": stats}
+
     elif action == "get_config":
         if CONFIG_PATH.exists():
             try:
@@ -228,6 +336,7 @@ async def handle_action(action, params):
                 return {"status": "error", "message": f"Failed to read config: {e}"}
         else:
             return {"status": "error", "message": "neon-shield.yml not found"}
+
 
     elif action == "save_config":
         config_data = params.get("config", {})
@@ -377,6 +486,133 @@ async def handle_action(action, params):
             except Exception as e:
                 return {"status": "error", "message": str(e)}
 
+    elif action == "scan_website":
+        target = params.get("target", "")
+        if not target:
+            return {"status": "error", "message": "Target website URL is required"}
+        
+        log_daemon(f"Running vulnerability audit for target: {target}...")
+        try:
+            from recon_engine import ReconEngine
+            engine = ReconEngine()
+            
+            # Execute the scan in a thread pool executor
+            findings = await asyncio.get_event_loop().run_in_executor(
+                None, engine.scan, target
+            )
+            
+            db_compromise = findings.get("database_compromise", None)
+            
+            # Formulate the SQL injection dump for the GUI
+            sqli_dump = []
+            if db_compromise and "users_table" in db_compromise:
+                for s in db_compromise["users_table"]["sample"]:
+                    sqli_dump.append({
+                        "id": s["id"],
+                        "username": f"{s['username']} ({s['email']})",
+                        "pass_hash": s["password_hash"]
+                    })
+            
+            # Formulate the keys for the exposed secrets
+            exposed_keys = []
+            for sec in findings.get("secrets", []):
+                exposed_keys.append({
+                    "type": sec.get("type", "API Key"),
+                    "key": sec.get("evidence", "Found in public repository")
+                })
+            
+            # Convert Vulnerability objects to serializable dicts
+            serialized_vulns = []
+            for idx, v in enumerate(findings.get("vulnerabilities", [])):
+                vuln_type_str = v.vuln_type.value if hasattr(v.vuln_type, 'value') else str(v.vuln_type)
+                
+                vuln_dict = {
+                    "id": f"vuln-{idx+1:02d}",
+                    "severity": v.severity.lower(),
+                    "title": v.description,
+                    "location": v.evidence,
+                    "description": f"Vulnerability detected by ReconEngine. Type: {vuln_type_str}. Tested on target: {v.target}.",
+                    "remediation": "Mitigate by implementing secure coding standards and updating software.",
+                    "exploit_simulated": v.exploitation_possible
+                }
+                
+                if vuln_type_str == "sql_injection" and sqli_dump:
+                    vuln_dict["dump"] = sqli_dump
+                
+                if vuln_type_str == "exposed_secret" and exposed_keys:
+                    vuln_dict["keys"] = exposed_keys
+                
+                serialized_vulns.append(vuln_dict)
+            
+            # Fallbacks to ensure GUI compatibility
+            if sqli_dump and serialized_vulns:
+                has_dump = any("dump" in v for v in serialized_vulns)
+                if not has_dump:
+                    serialized_vulns[0]["dump"] = sqli_dump
+
+            if exposed_keys and serialized_vulns:
+                has_keys = any("keys" in v for v in serialized_vulns)
+                if not has_keys:
+                    for v in serialized_vulns:
+                        if "secret" in v["title"].lower() or "config" in v["title"].lower():
+                            v["keys"] = exposed_keys
+                            break
+                    else:
+                        serialized_vulns[0]["keys"] = exposed_keys
+            
+            critical_cnt = sum(1 for v in serialized_vulns if v["severity"] == "critical")
+            high_cnt = sum(1 for v in serialized_vulns if v["severity"] == "high")
+            medium_cnt = sum(1 for v in serialized_vulns if v["severity"] == "medium")
+            low_cnt = len(serialized_vulns) - (critical_cnt + high_cnt + medium_cnt)
+            
+            report_text = engine.display_report()
+            
+            return {
+                "status": "success",
+                "target": target,
+                "score": max(100 - len(serialized_vulns) * 10, 10),
+                "stats": {
+                    "critical": critical_cnt,
+                    "high": high_cnt,
+                    "medium": medium_cnt,
+                    "low": max(low_cnt, 0)
+                },
+                "vulnerabilities": serialized_vulns,
+                "database_compromise": db_compromise,
+                "report_text": report_text
+            }
+        except Exception as e:
+            log_daemon(f"Failed to scan website: {e}")
+            return {"status": "error", "message": str(e)}
+
+    elif action == "start_phishing":
+        template = params.get("template", "gmail")
+        redirect = params.get("redirect", "https://mail.google.com")
+        phish_state = {
+            "active": True,
+            "template": template,
+            "redirect_url": redirect
+        }
+        try:
+            with open("phishing_state.json", "w") as f:
+                json.dump(phish_state, f)
+            log_daemon(f"Phishing active. Template: {template}, Redirect: {redirect}")
+            return {"status": "success", "message": f"Phishing portal deployed using {template} template"}
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to start phishing: {e}"}
+
+    elif action == "stop_phishing":
+        phish_state = {
+            "active": False
+        }
+        try:
+            with open("phishing_state.json", "w") as f:
+                json.dump(phish_state, f)
+            log_daemon("Phishing portal disabled.")
+            return {"status": "success", "message": "Phishing portal disabled"}
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to stop phishing: {e}"}
+
     else:
         return {"status": "error", "message": f"Unknown action: {action}"}
 
@@ -399,24 +635,36 @@ async def ws_handler(websocket):
     
     # Send initial setup state & logs
     sys_info = get_system_info()
+    net_info = get_network_info()
     traffic_history = read_last_lines(TRAFFIC_LOG, 100)
     creds_history = read_last_lines(CREDS_LOG, 50)
     
     from state_manager import load_state
     state = load_state()
     
+    phish_state = {"active": False}
+    if os.path.exists("phishing_state.json"):
+        try:
+            with open("phishing_state.json", "r") as f:
+                phish_state = json.load(f)
+        except Exception:
+            pass
+
     initial_payload = {
         "type": "init",
         "data": {
             "sys_info": sys_info,
+            "net_info": net_info,
             "running": active_process is not None,
             "process": active_process_name,
             "state": state,
             "traffic_history": traffic_history,
-            "creds_history": creds_history
+            "creds_history": creds_history,
+            "phish_state": phish_state
         }
     }
     await websocket.send(json.dumps(initial_payload))
+
     
     try:
         async for message in websocket:

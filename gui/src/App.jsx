@@ -120,6 +120,13 @@ function App() {
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiReport, setAiReport] = useState("");
 
+  // Network / Traffic Inspector States
+  const [netInfo, setNetInfo] = useState(null);
+  const [trafficStats, setTrafficStats] = useState(null);
+  const [trafficProtocolFilter, setTrafficProtocolFilter] = useState("all");
+  const [trafficMethodFilter, setTrafficMethodFilter] = useState("all");
+  const [trafficInterceptFilter, setTrafficInterceptFilter] = useState("all");
+
   // Demo Simulation Settings Drawer State
   const [showDemoController, setShowDemoController] = useState(true);
   const [simPacketRate, setSimPacketRate] = useState(1); // packets per 2 seconds
@@ -167,7 +174,7 @@ function App() {
 
   const connectWebSocket = () => {
     console.log("Connecting to daemon...");
-    ws.current = new WebSocket("ws://127.0.0.1:8765");
+    ws.current = new WebSocket("ws://127.0.0.1:8766");
 
     ws.current.onopen = () => {
       setWsConnected(true);
@@ -209,11 +216,21 @@ function App() {
         switch (type) {
           case "init":
             setSysInfo(data.sys_info);
+            if (data.net_info) setNetInfo(data.net_info);
             setMitmRunning(data.running);
             setRunningProcessName(data.process);
             setStateInfo(data.state);
             if (data.traffic_history) setTrafficLog(data.traffic_history.reverse());
             if (data.creds_history) setCredsLog(data.creds_history.reverse());
+            if (data.phish_state) {
+              setPhishingActive(!!data.phish_state.active);
+              if (data.phish_state.template) {
+                setPhishingTemplate(data.phish_state.template);
+              }
+              if (data.phish_state.redirect_url) {
+                setPhishingRedirect(data.phish_state.redirect_url);
+              }
+            }
             break;
             
           case "status":
@@ -262,6 +279,14 @@ function App() {
       local_ip: "192.168.1.100",
       cidr: "192.168.1.0/24"
     });
+    // Populate demo netInfo with realistic WiFi data
+    setNetInfo({
+      ssid: "Premium", bssid: "B8:85:7B:E8:35:F4", interface: "wlp2s0",
+      frequency: "5.18 GHz", channel: "36", signal_dbm: -43,
+      signal_quality: 96, bitrate: "585.1 Mb/s", security: "WPA2",
+      tx_power: "21 dBm", local_ip: "192.168.1.100",
+      gateway: "192.168.1.1", mode: "wifi"
+    });
     setDiscoveredHosts(INITIAL_DEMO_HOSTS);
 
     // Periodic simulation runner
@@ -279,6 +304,24 @@ function App() {
       if (simTimerRef.current) clearInterval(simTimerRef.current);
     };
   }, [appMode, mitmRunning, simPacketRate]);
+
+  // Fetch fresh network info from daemon
+  const fetchNetInfo = () => {
+    if (appMode !== "live" || !wsConnected) return;
+    sendAction("get_network_info").then(res => {
+      if (res.status === "success") setNetInfo(res.data);
+    }).catch(() => {});
+  };
+
+  // Fetch traffic stats from daemon
+  const fetchTrafficStats = () => {
+    if (appMode !== "live" || !wsConnected) return;
+    sendAction("get_traffic_stats").then(res => {
+      if (res.status === "success") setTrafficStats(res.stats);
+    }).catch(() => {});
+  };
+
+
 
   // Simulated Action Router
   const handleSimulatedAction = (action, params) => {
@@ -566,7 +609,7 @@ function App() {
     showToast("Copied content to clipboard", "success");
   };
 
-  // Web Vulnerability Auditor simulation trigger
+  // Web Vulnerability Auditor scan trigger
   const runWebAuditorScan = () => {
     if (!auditorTarget) {
       showToast("Please enter a valid website URL", "error");
@@ -596,74 +639,99 @@ function App() {
         currentStep++;
       } else {
         clearInterval(interval);
-        setAuditorScanning(false);
-        // Load report
-        setAuditorResults({
-          target: auditorTarget,
-          score: 34, // Score out of 100
-          stats: { critical: 2, high: 1, medium: 2, low: 3 },
-          vulnerabilities: [
-            {
-              id: "vuln-01",
-              severity: "critical",
-              title: "SQL Injection (SQLi)",
-              location: "GET /api/v1/products?category=",
-              description: "Input parameter is not sanitized before database query assembly. Attacker can inject arbitrary SQL commands to dump user credentials and bypass OAuth profiles.",
-              remediation: "Implement Prepared Statements / Parameterized Queries on API database connection adapters. Avoid direct raw string concatenation.",
-              exploit_simulated: true,
-              dump: [
-                { id: 1, username: "admin@megacorp.com", pass_hash: "$2y$12$R9h/lS7vL9aB9eB9dCeFgO12k34j56l78m90" },
-                { id: 2, username: "jdoe@megacorp.com", pass_hash: "$2y$12$K1m2n3o4p5q6r7s8t9u0v1w2x3y4z5a6b7c8" },
-                { id: 3, username: "operator_bill@megacorp.com", pass_hash: "$2y$12$P9q8r7s6t5u4v3w2x1y0z_auth_pass_hash" }
-              ]
-            },
-            {
-              id: "vuln-02",
-              severity: "critical",
-              title: "Hardcoded API Access Keys",
-              location: "GET /js/app.min.js (Line 2450)",
-              description: "Plaintext cloud credentials found in client-side script code.",
-              remediation: "Revoke credentials immediately. Migrate cloud key parameters to environment configurations managed on secured gateway layers.",
-              keys: [
-                { type: "AWS Access Key ID", key: "AKIAIOSFODNN7EXAMPLE" },
-                { type: "Supabase Service Role JWT", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVs" }
-              ]
-            },
-            {
-              id: "vuln-03",
-              severity: "high",
-              title: "Exposed Git Repository Configuration",
-              location: "GET /.git/config",
-              description: "Web server hosts development directory metadata. Exposure permits reconstruction of source code repository files.",
-              remediation: "Configure nginx/apache rewrite profiles to return a 403 Forbidden index for all dot-prefix folders.",
-            },
-            {
-              id: "vuln-04",
-              severity: "medium",
-              title: "Outdated JavaScript Library Dependencies",
-              location: "jQuery v1.12.4",
-              description: "Library contains multiple CVE advisories related to cross-site scripting (XSS) exploit vectors.",
-              remediation: "Upgrade library dependencies to the latest stable packages."
-            },
-            {
-              id: "vuln-05",
-              severity: "medium",
-              title: "Weak TLS Cipher Configuration",
-              location: "TLS v1.0 & TLS v1.1 Enabled",
-              description: "Server accepts deprecated SSL/TLS protocols subject to session spoofing attacks.",
-              remediation: "Enforce TLS v1.2 and TLS v1.3 profiles on SSL configurations."
-            },
-            {
-              id: "vuln-06",
-              severity: "low",
-              title: "Missing Security Headers",
-              location: "HTTP/1.1 headers",
-              description: "Response lacks X-Frame-Options, Content-Security-Policy (CSP), and Strict-Transport-Security (HSTS).",
-              remediation: "Append security headers in proxy proxy configs."
-            }
-          ]
-        });
-        showToast("Vulnerability scan complete!", "success");
+        
+        if (appMode === "live" && wsConnected) {
+          sendAction("scan_website", { target: auditorTarget })
+            .then(res => {
+              setAuditorScanning(false);
+              if (res.status === "success") {
+                setAuditorResults({
+                  target: res.target,
+                  score: res.score,
+                  stats: res.stats,
+                  vulnerabilities: res.vulnerabilities,
+                  database_compromise: res.database_compromise,
+                  report_text: res.report_text
+                });
+                showToast("Vulnerability scan complete!", "success");
+              } else {
+                showToast(res.message, "error");
+              }
+            })
+            .catch(err => {
+              setAuditorScanning(false);
+              showToast("Backend scan failed: " + (err.message || err), "error");
+            });
+        } else {
+          // Demo Mode fallback
+          setAuditorScanning(false);
+          setAuditorResults({
+            target: auditorTarget,
+            score: 34,
+            stats: { critical: 2, high: 1, medium: 2, low: 3 },
+            vulnerabilities: [
+              {
+                id: "vuln-01",
+                severity: "critical",
+                title: "SQL Injection (SQLi)",
+                location: "GET /api/v1/products?category=",
+                description: "Input parameter is not sanitized before database query assembly. Attacker can inject arbitrary SQL commands to dump user credentials and bypass OAuth profiles.",
+                remediation: "Implement Prepared Statements / Parameterized Queries on API database connection adapters. Avoid direct raw string concatenation.",
+                exploit_simulated: true,
+                dump: [
+                  { id: 1, username: "admin@megacorp.com", pass_hash: "$2y$12$R9h/lS7vL9aB9eB9dCeFgO12k34j56l78m90" },
+                  { id: 2, username: "jdoe@megacorp.com", pass_hash: "$2y$12$K1m2n3o4p5q6r7s8t9u0v1w2x3y4z5a6b7c8" },
+                  { id: 3, username: "operator_bill@megacorp.com", pass_hash: "$2y$12$P9q8r7s6t5u4v3w2x1y0z_auth_pass_hash" }
+                ]
+              },
+              {
+                id: "vuln-02",
+                severity: "critical",
+                title: "Hardcoded API Access Keys",
+                location: "GET /js/app.min.js (Line 2450)",
+                description: "Plaintext cloud credentials found in client-side script code.",
+                remediation: "Revoke credentials immediately. Migrate cloud key parameters to environment configurations managed on secured gateway layers.",
+                keys: [
+                  { type: "AWS Access Key ID", key: "AKIAIOSFODNN7EXAMPLE" },
+                  { type: "Supabase Service Role JWT", key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVs" }
+                ]
+              },
+              {
+                id: "vuln-03",
+                severity: "high",
+                title: "Exposed Git Repository Configuration",
+                location: "GET /.git/config",
+                description: "Web server hosts development directory metadata. Exposure permits reconstruction of source code repository files.",
+                remediation: "Configure nginx/apache rewrite profiles to return a 403 Forbidden index for all dot-prefix folders.",
+              },
+              {
+                id: "vuln-04",
+                severity: "medium",
+                title: "Outdated JavaScript Library Dependencies",
+                location: "jQuery v1.12.4",
+                description: "Library contains multiple CVE advisories related to cross-site scripting (XSS) exploit vectors.",
+                remediation: "Upgrade library dependencies to the latest stable packages."
+              },
+              {
+                id: "vuln-05",
+                severity: "medium",
+                title: "Weak TLS Cipher Configuration",
+                location: "TLS v1.0 & TLS v1.1 Enabled",
+                description: "Server accepts deprecated SSL/TLS protocols subject to session spoofing attacks.",
+                remediation: "Enforce TLS v1.2 and TLS v1.3 profiles on SSL configurations."
+              },
+              {
+                id: "vuln-06",
+                severity: "low",
+                title: "Missing Security Headers",
+                location: "HTTP/1.1 headers",
+                description: "Response lacks X-Frame-Options, Content-Security-Policy (CSP), and Strict-Transport-Security (HSTS).",
+                remediation: "Append security headers in proxy proxy configs."
+              }
+            ]
+          });
+          showToast("Vulnerability scan complete!", "success");
+        }
       }
     }, 600);
   };
@@ -1487,6 +1555,14 @@ The active attack path demonstrates typical credential-harvesting vectors:
                         >
                           SQLi Database Dump
                         </span>
+                        {auditorResults.report_text && (
+                          <span 
+                            style={{ cursor: "pointer", fontWeight: "bold", fontSize: "0.9rem", color: auditorTab === "rawreport" ? "var(--neon-cyan)" : "var(--text-secondary)", borderBottom: auditorTab === "rawreport" ? "2px solid var(--neon-cyan)" : "none", paddingBottom: "0.5rem" }}
+                            onClick={() => setAuditorTab("rawreport")}
+                          >
+                            Technical Scan Report
+                          </span>
+                        )}
                       </div>
 
                       {auditorTab === "overview" && (
@@ -1540,7 +1616,7 @@ The active attack path demonstrates typical credential-harvesting vectors:
                                 </tr>
                               </thead>
                               <tbody>
-                                {auditorResults.vulnerabilities.find(v => v.id === "vuln-01")?.dump.map((row) => (
+                                {(auditorResults.vulnerabilities.find(v => v.id === "vuln-01")?.dump || []).map((row) => (
                                   <tr key={row.id}>
                                     <td>{row.id}</td>
                                     <td style={{ color: "var(--neon-cyan)", fontWeight: "bold" }}>{row.username}</td>
@@ -1550,6 +1626,17 @@ The active attack path demonstrates typical credential-harvesting vectors:
                               </tbody>
                             </table>
                           </div>
+                        </div>
+                      )}
+
+                      {auditorTab === "rawreport" && auditorResults.report_text && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                            Raw CLI output report generated by the Reconnaissance & Site Exploitation Engine.
+                          </p>
+                          <pre style={{ background: "rgba(0, 0, 0, 0.4)", color: "#22c55e", padding: "1rem", borderRadius: "8px", fontFamily: "monospace", fontSize: "0.75rem", overflowX: "auto", border: "1px solid var(--border-muted)", lineHeight: "1.4", whiteSpace: "pre-wrap" }}>
+                            {auditorResults.report_text}
+                          </pre>
                         </div>
                       )}
                     </div>
@@ -1604,16 +1691,38 @@ The active attack path demonstrates typical credential-harvesting vectors:
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
                   {phishingActive ? (
                     <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => {
-                      setPhishingActive(false);
-                      addTerminalLine("phish", "Stopped phishing server listener on port 8080");
+                      sendAction("stop_phishing")
+                        .then((res) => {
+                          if (res.status === "success") {
+                            setPhishingActive(false);
+                            addTerminalLine("phish", "Stopped phishing server listener on port 8080");
+                            showToast("Phishing portal disabled", "success");
+                          } else {
+                            showToast(res.message || "Failed to stop phishing portal", "error");
+                          }
+                        })
+                        .catch((err) => {
+                          showToast("WebSocket error calling stop_phishing", "error");
+                        });
                     }}>
                       <Square size={16} /> Disable Phishing Server
                     </button>
                   ) : (
                     <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => {
-                      setPhishingActive(true);
-                      addTerminalLine("phish", `Starting phishing generator template [${phishingTemplate}] on port 8080`);
-                      addTerminalLine("phish", `Routing completed submissions to redirect link: ${phishingRedirect}`);
+                      sendAction("start_phishing", { template: phishingTemplate, redirect: phishingRedirect })
+                        .then((res) => {
+                          if (res.status === "success") {
+                            setPhishingActive(true);
+                            addTerminalLine("phish", `Starting phishing generator template [${phishingTemplate}] on port 8080`);
+                            addTerminalLine("phish", `Routing completed submissions to redirect link: ${phishingRedirect}`);
+                            showToast("Phishing portal deployed", "success");
+                          } else {
+                            showToast(res.message || "Failed to start phishing portal", "error");
+                          }
+                        })
+                        .catch((err) => {
+                          showToast("WebSocket error calling start_phishing", "error");
+                        });
                     }}>
                       <Play size={16} /> Deploy Phishing Portal
                     </button>
@@ -1661,20 +1770,24 @@ The active attack path demonstrates typical credential-harvesting vectors:
                       </thead>
                       <tbody>
                         {credsLog.map((cred, idx) => {
-                          const timeStr = new Date(cred.ts * 1000).toLocaleTimeString();
+                          const tsValue = cred.ts || cred.timestamp;
+                          const timeStr = tsValue ? new Date(tsValue * 1000).toLocaleTimeString() : new Date().toLocaleTimeString();
+                          const targetIp = cred.src_ip || cred.source_ip || "Unknown";
+                          const domainHost = cred.host || cred.domain || "Phishing Portal";
+                          const secretData = cred.credentials || cred.fields || {};
                           return (
                             <tr key={idx} style={{ background: "rgba(255, 59, 48, 0.02)" }}>
                               <td style={{ fontFamily: "monospace" }}>{timeStr}</td>
-                              <td style={{ fontFamily: "monospace" }}>{cred.src_ip}</td>
-                              <td style={{ fontWeight: "bold" }}>{cred.host}</td>
+                              <td style={{ fontFamily: "monospace" }}>{targetIp}</td>
+                              <td style={{ fontWeight: "bold" }}>{domainHost}</td>
                               <td style={{ fontFamily: "monospace", color: "#ff6b6b", fontWeight: "600" }}>
-                                {cred.creds_summary || JSON.stringify(cred.credentials || {})}
+                                {cred.creds_summary || JSON.stringify(secretData)}
                               </td>
                               <td style={{ textAlign: "right" }}>
                                 <button 
                                   className="btn btn-secondary" 
                                   style={{ padding: "0.25rem 0.5rem" }}
-                                  onClick={() => copyToClipboard(JSON.stringify(cred.credentials || {}))}
+                                  onClick={() => copyToClipboard(JSON.stringify(secretData))}
                                 >
                                   <Copy size={12} />
                                 </button>

