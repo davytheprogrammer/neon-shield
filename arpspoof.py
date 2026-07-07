@@ -15,9 +15,9 @@ import time
 from scapy.all import ARP, Ether, sendp, srp, conf
 
 
-def _get_mac(ip, iface, timeout=3):
+def _get_mac(ip, iface, timeout=1.5):
     packet = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
-    answered, _ = srp(packet, timeout=timeout, iface=iface, verbose=False)
+    answered, _ = srp(packet, timeout=timeout, iface=iface, filter="arp", verbose=False)
     if answered:
         return answered[0][1].hwsrc
     return None

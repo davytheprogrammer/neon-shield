@@ -1338,127 +1338,251 @@ The active attack path demonstrates typical credential-harvesting vectors:
 
           {/* TRAFFIC INSPECTOR TAB */}
           {activeTab === "traffic" && (
-            <div className="card" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div className="card-header">
-                <h3>Live HTTP/HTTPS Traffic Stream</h3>
-                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                  <div style={{ position: "relative" }}>
-                    <Search style={{ position: "absolute", left: "10px", top: "10px", color: "var(--text-muted)" }} size={16} />
-                    <input
-                      type="text"
-                      placeholder="Filter request logs..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{ paddingLeft: "2.25rem", width: "220px", background: "var(--bg-input)", border: "1px solid var(--border-muted)", color: "#fff", borderRadius: "8px", height: "36px" }}
-                    />
-                  </div>
-                  <button className="btn btn-secondary" style={{ padding: "0.5rem 1rem" }} onClick={() => setTrafficLog([])}>
-                    <Trash2 size={14} /> Reset Timeline
-                  </button>
-                </div>
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
-              {filteredTraffic.length > 0 ? (
-                <div className="table-container" style={{ maxHeight: "400px", overflowY: "auto" }}>
-                  <table className="custom-table">
-                    <thead>
-                      <tr>
-                        <th>Time</th>
-                        <th>Source IP</th>
-                        <th>Method</th>
-                        <th>Domain Host</th>
-                        <th>URI Path</th>
-                        <th>Security Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredTraffic.map((item, idx) => {
-                        const m = (item.method || "").toUpperCase();
-                        let badgeClass = "badge-get";
-                        if (m === "POST") badgeClass = "badge-post";
-                        if (m === "PUT" || m === "PATCH") badgeClass = "badge-put";
-                        if (m === "DELETE") badgeClass = "badge-delete";
-                        
-                        const timeStr = new Date(item.ts * 1000).toLocaleTimeString();
-                        
-                        return (
-                          <tr 
-                            key={idx} 
-                            onClick={() => setSelectedTrafficItem(item)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <td style={{ whiteSpace: "nowrap", fontFamily: "monospace" }}>{timeStr}</td>
-                            <td style={{ fontFamily: "monospace" }}>{item.src_ip}</td>
-                            <td>
-                              <span className={`badge ${badgeClass}`}>{m || "REQ"}</span>
-                            </td>
-                            <td style={{ fontWeight: "600", color: "var(--neon-cyan)" }}>{item.host}</td>
-                            <td style={{ fontFamily: "monospace", maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                              {item.path}
-                            </td>
-                            <td>
-                              {item.intercepted ? (
-                                <span style={{ color: "var(--neon-rose)", fontSize: "0.75rem", fontWeight: "bold" }}>DECRYPTED PAYLOAD</span>
-                              ) : (
-                                <span style={{ color: "var(--neon-green)", fontSize: "0.75rem" }}>FORWARDED (SSL)</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <Activity size={48} />
-                  <p>Awaiting network logs. Start interception to see live traffic stream.</p>
+              {/* WiFi / Network Context Banner */}
+              {netInfo && (
+                <div style={{ background: "linear-gradient(135deg, rgba(0,242,254,0.05), rgba(0,242,254,0.02))", border: "1px solid var(--border-cyan)", borderRadius: "12px", padding: "1rem 1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <Wifi size={22} style={{ color: netInfo.ssid ? "var(--neon-cyan)" : "var(--text-muted)" }} />
+                    <div>
+                      <div style={{ fontWeight: "700", fontSize: "1rem", color: netInfo.ssid ? "#fff" : "var(--text-secondary)" }}>
+                        {netInfo.ssid || (netInfo.mode === "ethernet" ? "Ethernet" : "Not connected")}
+                      </div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)", fontFamily: "monospace" }}>
+                        {netInfo.bssid || "—"} {netInfo.channel ? `· Ch ${netInfo.channel}` : ""} {netInfo.frequency ? `· ${netInfo.frequency}` : ""}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+                    {netInfo.signal_quality != null && (
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.2rem" }}>Signal</div>
+                        <div style={{ display: "flex", gap: "2px", alignItems: "flex-end", height: "18px" }}>
+                          {[25, 50, 75, 100].map((t, i) => (
+                            <div key={i} style={{ width: "5px", height: `${(i+1)*4+4}px`, borderRadius: "1px", background: netInfo.signal_quality >= t ? "var(--neon-cyan)" : "rgba(255,255,255,0.1)" }} />
+                          ))}
+                          <span style={{ marginLeft: "6px", fontFamily: "monospace", fontSize: "0.75rem", color: "var(--neon-cyan)" }}>{netInfo.signal_dbm} dBm</span>
+                        </div>
+                      </div>
+                    )}
+                    {netInfo.bitrate && (
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.2rem" }}>Bitrate</div>
+                        <div style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#fff", fontWeight: "600" }}>{netInfo.bitrate}</div>
+                      </div>
+                    )}
+                    {netInfo.security && (
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.2rem" }}>Security</div>
+                        <span style={{ background: "rgba(0,230,118,0.1)", color: "var(--neon-green)", border: "1px solid rgba(0,230,118,0.3)", borderRadius: "4px", padding: "0.1rem 0.4rem", fontSize: "0.72rem", fontWeight: "700" }}>{netInfo.security}</span>
+                      </div>
+                    )}
+                    {netInfo.local_ip && (
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.2rem" }}>Local IP</div>
+                        <div style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "var(--neon-cyan)" }}>{netInfo.local_ip}</div>
+                      </div>
+                    )}
+                    {netInfo.gateway && (
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.2rem" }}>Gateway</div>
+                        <div style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#fff" }}>{netInfo.gateway}</div>
+                      </div>
+                    )}
+                    <button className="btn btn-secondary" style={{ padding: "0.25rem 0.6rem", fontSize: "0.7rem", alignSelf: "center" }} onClick={fetchNetInfo}>
+                      <RefreshCw size={11} /> Refresh
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {/* Traffic Detail Sidebar */}
-              {selectedTrafficItem && (
-                <div style={{ position: "fixed", right: 0, top: 0, bottom: 0, width: "450px", background: "rgba(10,14,28,0.95)", borderLeft: "1px solid var(--border-cyan)", zIndex: 1000, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem", boxShadow: "-5px 0 25px rgba(0,0,0,0.5)", backdropFilter: "blur(12px)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <h3>Decrypted Packet Inspector</h3>
-                    <button className="btn btn-secondary" style={{ padding: "0.25rem 0.5rem" }} onClick={() => setSelectedTrafficItem(null)}>Close</button>
+              {/* Live Stats Row */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "0.75rem" }}>
+                {[
+                  { label: "Total Packets", value: trafficLog.length, color: "var(--neon-cyan)" },
+                  { label: "Intercepted", value: trafficLog.filter(t => t.intercepted).length, color: "var(--neon-rose)" },
+                  { label: "POST Requests", value: trafficLog.filter(t => (t.method || "").toUpperCase() === "POST").length, color: "#f59e0b" },
+                  { label: "HTTPS Sessions", value: trafficLog.filter(t => t.protocol === "https").length, color: "var(--neon-green)" },
+                  { label: "Data Captured", value: (() => { const b = trafficLog.reduce((s,t) => s + (t.size || 0), 0); return b > 1048576 ? (b/1048576).toFixed(1)+"MB" : (b/1024).toFixed(1)+"KB"; })(), color: "#a78bfa" },
+                  { label: "Unique Hosts", value: new Set(trafficLog.map(t => t.host || t.domain)).size, color: "#38bdf8" },
+                ].map(s => (
+                  <div key={s.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-muted)", borderRadius: "10px", padding: "0.75rem 1rem" }}>
+                    <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.25rem" }}>{s.label}</div>
+                    <div style={{ fontFamily: "monospace", fontWeight: "800", fontSize: "1.3rem", color: s.color }}>{s.value}</div>
                   </div>
-                  
-                  <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: "1.25rem", fontSize: "0.85rem" }}>
+                ))}
+              </div>
+
+              {/* Filters + Search Row */}
+              <div className="card" style={{ padding: "0.75rem 1rem" }}>
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                  <div style={{ position: "relative" }}>
+                    <Search style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} size={14} />
+                    <input
+                      type="text"
+                      placeholder="Filter host, path, IP..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{ paddingLeft: "2rem", width: "200px", background: "var(--bg-input)", border: "1px solid var(--border-muted)", color: "#fff", borderRadius: "8px", height: "34px", fontSize: "0.82rem" }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    {["all","http","https"].map(p => (
+                      <button key={p} onClick={() => setTrafficProtocolFilter(p)}
+                        style={{ padding: "0.2rem 0.65rem", borderRadius: "20px", fontSize: "0.72rem", fontWeight: "600", border: `1px solid ${trafficProtocolFilter === p ? "var(--neon-cyan)" : "var(--border-muted)"}`, background: trafficProtocolFilter === p ? "rgba(0,242,254,0.1)" : "transparent", color: trafficProtocolFilter === p ? "var(--neon-cyan)" : "var(--text-secondary)", cursor: "pointer" }}>
+                        {p.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    {["all","GET","POST","PUT","DELETE"].map(m => (
+                      <button key={m} onClick={() => setTrafficMethodFilter(m)}
+                        style={{ padding: "0.2rem 0.65rem", borderRadius: "20px", fontSize: "0.72rem", fontWeight: "600", border: `1px solid ${trafficMethodFilter === m ? "#f59e0b" : "var(--border-muted)"}`, background: trafficMethodFilter === m ? "rgba(245,158,11,0.1)" : "transparent", color: trafficMethodFilter === m ? "#f59e0b" : "var(--text-secondary)", cursor: "pointer" }}>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    {[["all","All"],["intercepted","Intercepted"],["clean","Clean"]].map(([v,l]) => (
+                      <button key={v} onClick={() => setTrafficInterceptFilter(v)}
+                        style={{ padding: "0.2rem 0.65rem", borderRadius: "20px", fontSize: "0.72rem", fontWeight: "600", border: `1px solid ${trafficInterceptFilter === v ? "var(--neon-rose)" : "var(--border-muted)"}`, background: trafficInterceptFilter === v ? "rgba(255,59,48,0.1)" : "transparent", color: trafficInterceptFilter === v ? "var(--neon-rose)" : "var(--text-secondary)", cursor: "pointer" }}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+                    <button className="btn btn-secondary" style={{ padding: "0.3rem 0.75rem", fontSize: "0.75rem" }} onClick={() => setTrafficLog([])}>
+                      <Trash2 size={12} /> Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Traffic Table */}
+              {(() => {
+                const filtered = trafficLog.filter(item => {
+                  const q = searchQuery.toLowerCase();
+                  const matchQ = !q || (item.host || item.domain || "").toLowerCase().includes(q) || (item.path || "").toLowerCase().includes(q) || (item.src_ip || item.source_ip || "").includes(q);
+                  const matchP = trafficProtocolFilter === "all" || (item.protocol || "http") === trafficProtocolFilter;
+                  const matchM = trafficMethodFilter === "all" || (item.method || "").toUpperCase() === trafficMethodFilter;
+                  const matchI = trafficInterceptFilter === "all" || (trafficInterceptFilter === "intercepted" ? item.intercepted : !item.intercepted);
+                  return matchQ && matchP && matchM && matchI;
+                });
+                return filtered.length > 0 ? (
+                  <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+                    <div style={{ overflowY: "auto", maxHeight: "440px" }}>
+                      <table className="custom-table" style={{ width: "100%" }}>
+                        <thead>
+                          <tr>
+                            <th style={{ width: "80px" }}>Time</th>
+                            <th style={{ width: "110px" }}>Source IP</th>
+                            <th style={{ width: "65px" }}>Proto</th>
+                            <th style={{ width: "65px" }}>Method</th>
+                            <th>Host</th>
+                            <th>Path</th>
+                            <th style={{ width: "55px" }}>Status</th>
+                            <th style={{ width: "70px" }}>Size</th>
+                            <th style={{ width: "110px" }}>Intercept</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filtered.map((item, idx) => {
+                            const m = (item.method || "").toUpperCase();
+                            const proto = (item.protocol || "http").toUpperCase();
+                            const status = item.status;
+                            const statusColor = !status ? "#888" : status >= 500 ? "#f87171" : status >= 400 ? "#f59e0b" : status >= 300 ? "#38bdf8" : "#4ade80";
+                            const timeStr = item.ts ? new Date(item.ts * 1000).toLocaleTimeString() : "—";
+                            const sizeStr = item.size ? (item.size > 1024 ? (item.size/1024).toFixed(0)+"K" : item.size+"B") : "—";
+                            let mColor = "var(--neon-blue)";
+                            if (m === "POST") mColor = "var(--neon-rose)";
+                            else if (m === "PUT" || m === "PATCH") mColor = "#f59e0b";
+                            else if (m === "DELETE") mColor = "#f87171";
+                            return (
+                              <tr key={idx} onClick={() => setSelectedTrafficItem(item)} style={{ cursor: "pointer", borderLeft: item.intercepted ? "2px solid var(--neon-rose)" : "2px solid transparent" }}>
+                                <td style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "var(--text-secondary)" }}>{timeStr}</td>
+                                <td style={{ fontFamily: "monospace", fontSize: "0.75rem" }}>{item.src_ip || item.source_ip || "—"}</td>
+                                <td><span style={{ fontSize: "0.68rem", fontWeight: "700", color: proto === "HTTPS" ? "var(--neon-green)" : "var(--text-secondary)", background: proto === "HTTPS" ? "rgba(0,230,118,0.08)" : "transparent", borderRadius: "4px", padding: "1px 5px" }}>{proto}</span></td>
+                                <td><span style={{ fontFamily: "monospace", fontSize: "0.72rem", fontWeight: "700", color: mColor }}>{m || "REQ"}</span></td>
+                                <td style={{ fontWeight: "600", color: "var(--neon-cyan)", fontSize: "0.8rem", maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.host || item.domain || "—"}</td>
+                                <td style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "var(--text-secondary)", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.path || "/"}</td>
+                                <td style={{ fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "700", color: statusColor }}>{status || "—"}</td>
+                                <td style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "var(--text-secondary)" }}>{sizeStr}</td>
+                                <td>{item.intercepted ? <span style={{ color: "var(--neon-rose)", fontSize: "0.68rem", fontWeight: "800" }}>🔓 DECRYPTED</span> : <span style={{ color: "var(--neon-green)", fontSize: "0.68rem" }}>✓ FORWARDED</span>}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <Activity size={40} />
+                    <p>{trafficLog.length > 0 ? "No packets match active filters." : "Awaiting traffic. Start MITM interception to see live packets."}</p>
+                  </div>
+                );
+              })()}
+
+              {/* Deep-Dive Side Panel */}
+              {selectedTrafficItem && (
+                <div style={{ position: "fixed", right: 0, top: 0, bottom: 0, width: "480px", background: "rgba(8,12,26,0.97)", borderLeft: "1px solid var(--border-cyan)", zIndex: 1000, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem", boxShadow: "-8px 0 40px rgba(0,0,0,0.6)", backdropFilter: "blur(16px)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <div style={{ fontSize: "0.7rem", color: "var(--text-secondary)", textTransform: "uppercase" }}>Target Query URL</div>
-                      <div style={{ fontFamily: "monospace", wordBreak: "break-all", color: "var(--neon-cyan)", fontWeight: "bold", marginTop: "0.25rem" }}>
-                        {selectedTrafficItem.method} http://{selectedTrafficItem.host}{selectedTrafficItem.path}
-                      </div>
+                      <h3 style={{ margin: 0 }}>Packet Inspector</h3>
+                      <div style={{ fontSize: "0.7rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>{selectedTrafficItem.intercepted ? "🔴 Decrypted & Intercepted" : "🟢 Forwarded (Passthrough)"}</div>
                     </div>
+                    <button className="btn btn-secondary" style={{ padding: "0.3rem 0.75rem" }} onClick={() => setSelectedTrafficItem(null)}>✕ Close</button>
+                  </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                      <div>
-                        <div style={{ fontSize: "0.7rem", color: "var(--text-secondary)", textTransform: "uppercase" }}>Source IP Address</div>
-                        <div style={{ fontFamily: "monospace", marginTop: "0.25rem" }}>{selectedTrafficItem.src_ip}</div>
+                  <div style={{ background: "rgba(0,242,254,0.04)", border: "1px solid var(--border-cyan)", borderRadius: "8px", padding: "0.75rem", fontFamily: "monospace", wordBreak: "break-all", fontSize: "0.78rem", color: "var(--neon-cyan)", fontWeight: "600" }}>
+                    {selectedTrafficItem.method} {(selectedTrafficItem.protocol || "http")}://{selectedTrafficItem.host || selectedTrafficItem.domain}{selectedTrafficItem.path}
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.6rem" }}>
+                    {[
+                      ["Source IP", selectedTrafficItem.src_ip || selectedTrafficItem.source_ip, "#fff"],
+                      ["Time", selectedTrafficItem.ts ? new Date(selectedTrafficItem.ts * 1000).toLocaleTimeString() : "—", "var(--text-secondary)"],
+                      ["Protocol", (selectedTrafficItem.protocol || "http").toUpperCase(), selectedTrafficItem.protocol === "https" ? "var(--neon-green)" : "var(--neon-rose)"],
+                      ["Status Code", selectedTrafficItem.status || "—", selectedTrafficItem.status >= 400 ? "var(--neon-rose)" : "var(--neon-green)"],
+                      ["Response Size", selectedTrafficItem.size ? `${(selectedTrafficItem.size/1024).toFixed(1)} KB` : "—", "#a78bfa"],
+                      ["Content-Type", (selectedTrafficItem.content_type || "—").split(";")[0], "var(--text-secondary)"],
+                    ].map(([label, val, color]) => (
+                      <div key={label} style={{ background: "rgba(0,0,0,0.2)", borderRadius: "6px", padding: "0.5rem" }}>
+                        <div style={{ fontSize: "0.6rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.2rem" }}>{label}</div>
+                        <div style={{ fontFamily: "monospace", fontSize: "0.75rem", color, fontWeight: "600", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{val}</div>
                       </div>
+                    ))}
+                  </div>
+
+                  <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {selectedTrafficItem.headers && Object.keys(selectedTrafficItem.headers).length > 0 && (
                       <div>
-                        <div style={{ fontSize: "0.7rem", color: "var(--text-secondary)", textTransform: "uppercase" }}>Intercept Time</div>
-                        <div style={{ fontFamily: "monospace", marginTop: "0.25rem" }}>
-                          {new Date(selectedTrafficItem.ts * 1000).toLocaleString()}
+                        <div style={{ fontSize: "0.68rem", color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "0.5rem", fontWeight: "600" }}>Request Headers</div>
+                        <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: "6px", padding: "0.6rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                          {Object.entries(selectedTrafficItem.headers).map(([k, v]) => (
+                            <div key={k} style={{ display: "flex", gap: "0.5rem", fontFamily: "monospace", fontSize: "0.7rem", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "0.2rem" }}>
+                              <span style={{ color: "var(--neon-cyan)", minWidth: "130px", flexShrink: 0, fontWeight: "600" }}>{k}:</span>
+                              <span style={{ color: "#ccc", wordBreak: "break-all" }}>{v}</span>
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                    </div>
-
-                    {selectedTrafficItem.headers && (
-                      <div>
-                        <div style={{ fontSize: "0.7rem", color: "var(--text-secondary)", marginBottom: "0.5rem", textTransform: "uppercase" }}>Headers / Browser UA</div>
-                        <pre style={{ background: "rgba(0,0,0,0.3)", padding: "0.75rem", borderRadius: "6px", fontFamily: "monospace", fontSize: "0.7rem", overflowX: "auto" }}>
-                          {JSON.stringify(selectedTrafficItem.headers, null, 2)}
-                        </pre>
                       </div>
                     )}
 
                     {selectedTrafficItem.body && (
                       <div>
-                        <div style={{ fontSize: "0.7rem", color: "var(--neon-rose)", marginBottom: "0.5rem", textTransform: "uppercase", fontWeight: "bold" }}>DECRYPTED SUBMITTED PAYLOAD</div>
-                        <pre style={{ background: "rgba(255, 59, 48, 0.05)", border: "1px solid var(--border-red)", padding: "0.75rem", borderRadius: "6px", fontFamily: "monospace", fontSize: "0.75rem", color: "#ff8888", overflowX: "auto" }}>
-                          {selectedTrafficItem.body}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                          <div style={{ fontSize: "0.68rem", color: "var(--neon-rose)", textTransform: "uppercase", fontWeight: "800" }}>⚠️ Intercepted Request Body</div>
+                          <button className="btn btn-secondary" style={{ padding: "0.15rem 0.5rem", fontSize: "0.65rem" }} onClick={() => copyToClipboard(selectedTrafficItem.body)}>Copy</button>
+                        </div>
+                        <pre style={{ background: "rgba(255,59,48,0.06)", border: "1px solid rgba(255,59,48,0.25)", padding: "0.75rem", borderRadius: "6px", fontFamily: "monospace", fontSize: "0.72rem", color: "#fca5a5", overflowX: "auto", whiteSpace: "pre-wrap", wordBreak: "break-all", margin: 0 }}>
+                          {(() => {
+                            try {
+                              const d = decodeURIComponent(selectedTrafficItem.body.replace(/\+/g, " "));
+                              return d.includes("&") ? d.split("&").map(p => p.replace("=", " = ")).join("\n") : d;
+                            } catch { return selectedTrafficItem.body; }
+                          })()}
                         </pre>
                       </div>
                     )}
@@ -1467,6 +1591,7 @@ The active attack path demonstrates typical credential-harvesting vectors:
               )}
             </div>
           )}
+
 
           {/* VULNERABILITY AUDITOR TAB */}
           {activeTab === "auditor" && (

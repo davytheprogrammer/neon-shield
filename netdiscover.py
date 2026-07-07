@@ -35,7 +35,7 @@ def get_default_iface_and_gateway():
     return iface, gateway_ip, local_ip, cidr
 
 
-def scan_subnet(iface, cidr, timeout=3):
+def scan_subnet(iface, cidr, timeout=1.5):
     """
     ARP-scans every host address in `cidr` on `iface`.
     Returns a list of dicts: {"ip": ..., "mac": ...}
@@ -47,7 +47,7 @@ def scan_subnet(iface, cidr, timeout=3):
     arp = ARP(pdst=targets)
     packet = ether / arp
 
-    answered, _ = srp(packet, timeout=timeout, iface=iface, verbose=False)
+    answered, _ = srp(packet, timeout=timeout, iface=iface, filter="arp", verbose=False)
 
     hosts = []
     for _, received in answered:
