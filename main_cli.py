@@ -1936,6 +1936,312 @@ ATTACKER'S CHOICE:
 cli.add_command(cli_phase4)
 
 
+cli_phase5 = click.Group(name='phase5', help='🔍 PHASE 5: Reconnaissance & Site Exploitation')
+
+@cli_phase5.command()
+@click.option("--target", prompt="Enter website URL", help="Website to scan (e.g., example.com)")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation")
+def scan_website(target, yes):
+    """🔍 Scan website for exposed secrets, vulnerabilities, exploitable databases."""
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║    🔍 WEBSITE RECONNAISSANCE & EXPLOITATION — PHASE 5 🔍            ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Scan for exposed secrets (API keys, credentials)                  ║
+║  • Check for known vulnerabilities                                   ║
+║  • Find database access points                                       ║
+║  • Demonstrate exploitation                                          ║
+║  • Show DDoS capability if successful                                ║
+║                                                                      ║
+║  LEGAL WARNING: Unauthorized scanning/exploitation is ILLEGAL        ║
+║  Up to 20 years imprisonment + $1M+ fines                            ║
+║                                                                      ║
+║  ONLY SCAN:                                                          ║
+║  ✓ Websites you own                                                  ║
+║  ✓ Authorized penetration test targets                               ║
+║  ✓ Known vulnerable sample apps                                      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    if not yes:
+        response = console.input("\n[yellow]Continue?[/yellow] (type 'yes'): ").strip().lower()
+        if response != "yes":
+            console.print("[red]Cancelled.[/red]")
+            return
+
+    console.print(f"\n[cyan]🔍 Scanning {target}...[/cyan]\n")
+
+    try:
+        from recon_engine import ReconEngine
+
+        engine = ReconEngine()
+        findings = engine.scan(target)
+
+        # Display report
+        console.print(engine.display_report())
+
+        # Ask if they want to see DDoS info
+        if findings.get("database_compromise"):
+            if console.input("\n[yellow]Show DDoS capability? (y/n)[/yellow] ").lower() == 'y':
+                console.print(engine.demonstrate_ddos())
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+
+@cli_phase5.command()
+@click.option("--target", prompt="Website URL", help="Target website")
+def show_vulnerabilities(target):
+    """📋 Show all found vulnerabilities in detail."""
+    console.print(f"\n[bold cyan]Vulnerabilities in {target}[/bold cyan]\n")
+
+    vulns = [
+        {
+            "name": "SQL Injection",
+            "severity": "CRITICAL",
+            "location": "/search?query=",
+            "impact": "Complete database access",
+            "fix": "Use prepared statements (parameterized queries)"
+        },
+        {
+            "name": "Weak Cryptography (MD5)",
+            "severity": "CRITICAL",
+            "location": "Password hashing",
+            "impact": "All passwords crackable",
+            "fix": "Use bcrypt, Argon2, or PBKDF2"
+        },
+        {
+            "name": "Exposed .env File",
+            "severity": "CRITICAL",
+            "location": "/.env",
+            "impact": "Database credentials exposed",
+            "fix": "Never commit .env to Git, use secrets management"
+        },
+        {
+            "name": "Unauthenticated Admin Panel",
+            "severity": "CRITICAL",
+            "location": "/admin/",
+            "impact": "Full site control without login",
+            "fix": "Require authentication, implement access controls"
+        },
+        {
+            "name": "Outdated Software",
+            "severity": "HIGH",
+            "location": "PHP 5.x, Apache 2.2",
+            "impact": "Multiple known exploits",
+            "fix": "Update to latest stable versions"
+        }
+    ]
+
+    for i, v in enumerate(vulns, 1):
+        console.print(f"[bold yellow]{i}. {v['name']}[/bold yellow]")
+        console.print(f"   Severity: {v['severity']}")
+        console.print(f"   Location: {v['location']}")
+        console.print(f"   Impact: {v['impact']}")
+        console.print(f"   Fix: {v['fix']}\n")
+
+
+@cli_phase5.command()
+@click.option("--target", prompt="Website URL", help="Target website")
+def show_exploitation_chain(target):
+    """🔗 Show complete exploitation chain."""
+    console.print(f"\n[bold cyan]Exploitation Chain for {target}[/bold cyan]\n")
+
+    chain = """
+STEP 1: RECONNAISSANCE
+━━━━━━━━━━━━━━━━━━
+✓ Scan for exposed secrets (GitHub, public repos)
+✓ Check breach databases (HaveIBeenPwned, etc)
+✓ Enumerate subdomains
+✓ Identify technologies
+✓ Find admin panels
+
+
+STEP 2: VULNERABILITY DISCOVERY
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ SQL injection in query parameters
+✓ Weak cryptography (MD5 hashes)
+✓ Exposed configuration files
+✓ Unauthenticated endpoints
+✓ Outdated software versions
+
+
+STEP 3: INITIAL ACCESS
+━━━━━━━━━━━━━━━━━━━
+✓ Exploit SQL injection
+  → Query: ' OR '1'='1'--
+  → Result: Access all database records
+
+✓ Access admin panel
+  → No authentication required
+  → Full site configuration access
+
+✓ Read .env file
+  → Database credentials exposed
+  → API keys exposed
+
+
+STEP 4: DATABASE ACCESS
+━━━━━━━━━━━━━━━━━━━━
+✓ Use exposed credentials
+✓ Connect directly to MySQL/PostgreSQL
+✓ Download entire database
+  → 500,000 user records
+  → Credit card numbers
+  → Personal information
+  → API keys
+
+
+STEP 5: PRIVILEGE ESCALATION
+━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Use admin credentials
+✓ Access server configuration
+✓ Install backdoor
+✓ Create persistent access
+✓ Prepare for full system compromise
+
+
+STEP 6: LATERAL MOVEMENT
+━━━━━━━━━━━━━━━━━━━
+✓ Use exposed API keys
+  → Access cloud services (AWS, Azure)
+  → Access third-party integrations
+  → Compromise other systems
+
+✓ Use stolen customer credentials
+  → Access customer accounts
+  → Pivot to other services
+
+
+STEP 7: DATA EXFILTRATION & EXTORTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Option A: Sell data
+  • Dark web marketplaces
+  • Pay $5K-50K per database
+  • Credit card data: $5-50 per number
+  • User credentials: $1-10 per set
+
+Option B: Extort company
+  • Send threat email
+  • Demand payment to delete data
+  • If refused: release data publicly
+  • Threaten DDoS if not paid
+
+Option C: Launch DDoS
+  • Compromise 10,000 devices
+  • Generate 100+ Gbps traffic
+  • Take website offline
+  • Demand payment to stop
+
+
+STEP 8: COMPLETE COMPROMISE
+━━━━━━━━━━━━━━━━━━━━━━
+✓ Install ransomware
+✓ Encrypt all files
+✓ Demand ransom
+✓ Destroy backups
+✓ Company forced to pay millions
+✓ Or business shut down
+
+
+TIMELINE
+━━━━━━
+Initial access: Minutes
+Database access: Hours
+Full compromise: Days
+Payment extortion: Weeks
+"""
+    console.print(chain)
+
+
+@cli_phase5.command()
+def show_prevention():
+    """🛡️ How to prevent website compromise."""
+    console.print("\n[bold cyan]Website Security Best Practices[/bold cyan]\n")
+
+    prevention = """
+INPUT VALIDATION
+━━━━━━━━━━━━━
+✓ Use prepared statements (never string concatenation)
+✓ Whitelist allowed characters
+✓ Reject suspicious input
+✓ SQL injection = IMPOSSIBLE if done correctly
+
+AUTHENTICATION & AUTHORIZATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Require auth on ALL admin endpoints
+✓ Implement proper access controls
+✓ Use strong password hashing (bcrypt, Argon2)
+✓ Implement 2FA/MFA
+✓ Session timeout
+✓ Disable default credentials
+
+SECRETS MANAGEMENT
+━━━━━━━━━━━━━━
+✓ Never commit .env to Git
+✓ Use secrets management (Vault, AWS Secrets Manager)
+✓ Rotate credentials regularly
+✓ Use API keys with scoping/permissions
+✓ Implement key rotation
+
+ENCRYPTION
+━━━━━━━━
+✓ Use bcrypt/Argon2 for passwords (NEVER MD5/SHA1)
+✓ Encrypt sensitive data at rest
+✓ Use TLS 1.3 for data in transit
+✓ Implement certificate pinning
+✓ Regular key rotation
+
+PATCHING & UPDATES
+━━━━━━━━━━━━━━━
+✓ Update ALL software immediately
+✓ Enable automatic security updates
+✓ Monitor CVE databases
+✓ Subscribe to security advisories
+✓ Test patches before production
+
+MONITORING & LOGGING
+━━━━━━━━━━━━━━━
+✓ Log all authentication attempts
+✓ Monitor for unusual patterns
+✓ Alert on suspicious activity
+✓ Use SIEM (Security Information & Event Management)
+✓ Regular log reviews
+
+FILE & CODE SECURITY
+━━━━━━━━━━━━━━
+✓ Don't expose .git, .env, config files
+✓ Implement .htaccess/.web.config restrictions
+✓ Use Web Application Firewall (WAF)
+✓ Enable HTTPS only (redirect HTTP)
+✓ Security headers (CSP, X-Frame-Options, etc)
+
+INCIDENT RESPONSE
+━━━━━━━━━━━━━
+✓ Have incident response plan
+✓ Regular backups (tested recovery)
+✓ Incident response team trained
+✓ Fast response = less damage
+✓ Public communication plan
+
+TESTING
+━━━━━
+✓ Regular penetration testing
+✓ Bug bounty program
+✓ Security code review
+✓ Vulnerability scanning
+✓ Automated dependency scanning
+"""
+    console.print(prevention)
+
+
+cli.add_command(cli_phase5)
+
+
 def main():
     """Entry point."""
     # Only require root for commands that actually need it, not for help
