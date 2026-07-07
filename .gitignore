@@ -1,0 +1,18 @@
+# Ignore python compiled files
+__pycache__/
+*.pyc
+
+# Ignore private keys and certificates generated locally
+certs/
+*.key
+*.crt
+*.pem
+
+# Ignore test output images
+test_*.png
+test_*.jpg
+output_*.png
+output_*.jpg
+
+# OS file systems
+.DS_Store
