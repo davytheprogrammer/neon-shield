@@ -247,6 +247,72 @@ See `neon-shield.yml` for all options:
 
 ---
 
+## 🖥️ Building the Desktop GUI (Tauri v2)
+
+NEON-SHIELD includes a modern React desktop interface built on Tauri v2. 
+
+### 1. Install System Dependencies (Linux/Pop!_OS/Debian/Ubuntu)
+Tauri requires specific system packages and the Rust compiler:
+```bash
+# Update package list and install system libraries
+sudo apt update
+sudo apt install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+# Install Rust (if not already installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+```
+
+### 2. Build the Application
+```bash
+cd gui
+npm install
+
+# Run the app in desktop development mode (hot-reloads)
+npm run tauri dev
+
+# Build the optimized production desktop binary
+npm run tauri build
+```
+The compiled binaries will be generated inside `gui/src-tauri/target/release/bundle/`.
+
+---
+
+## 🛠️ Port Troubleshooting & Process Management
+
+If the daemon crashes or exits uncleanly, ports may remain bound, resulting in errors like:
+`OSError: [Errno 98] Address already in use` (specifically port `8766` for the WebSocket daemon, or `8080`/`7070` for the dashboards).
+
+To find and terminate the blocking processes:
+
+### Method 1: Using `fuser` (Fastest)
+```bash
+# Kill any process holding the Daemon port (8766)
+sudo fuser -k 8766/tcp
+
+# Kill any process holding the Dashboard port (8080)
+sudo fuser -k 8080/tcp
+
+# Kill any process holding the Control Panel port (7070)
+sudo fuser -k 7070/tcp
+```
+
+### Method 2: Using `lsof`
+```bash
+# Find the PID holding the port
+sudo lsof -i :8766
+
+# Kill the process using the resolved PID
+sudo kill -9 <PID>
+```
+
+### Method 3: Emergency Script
+```bash
+sudo ./cleanup.sh
+```
+
+---
+
 ## 🤝 Contributing
 
 Bug reports, feature requests, and PRs welcome! Please:

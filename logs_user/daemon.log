@@ -1,3 +1,18 @@
 [2026-07-07 16:54:30] [Daemon] Starting privileged backend daemon on ws://127.0.0.1:8766
 [2026-07-07 16:54:30] [Daemon] Starting log tailer for traffic.jsonl
 [2026-07-07 16:54:30] [Daemon] Starting log tailer for credentials.jsonl
+[2026-07-07 17:32:32] [Daemon] Starting privileged backend daemon on ws://127.0.0.1:8766
+[2026-07-07 17:32:32] [Daemon] Starting log tailer for traffic.jsonl
+[2026-07-07 17:32:32] [Daemon] Starting log tailer for credentials.jsonl
+[2026-07-07 17:32:32] [Daemon] Tailer for credentials.jsonl cancelled.
+[2026-07-07 17:32:32] [Daemon] Tailer for traffic.jsonl cancelled.
+[2026-07-07 17:35:26] [Daemon] Starting privileged backend daemon on ws://127.0.0.1:8766
+[2026-07-07 17:35:26] [Daemon] Starting log tailer for traffic.jsonl
+[2026-07-07 17:35:26] [Daemon] Starting log tailer for credentials.jsonl
+[2026-07-07 17:36:19] [Daemon] Client connected: ('127.0.0.1', 32968)
+[2026-07-07 17:44:07] [Daemon] Running vulnerability audit for target: https://demoafrica.co/...
+[2026-07-07 17:46:03] [Daemon] Running vulnerability audit for target: https://sexc.co/...
+[2026-07-07 17:46:20] [Daemon] Running vulnerability audit for target: https://w.co/...
+[2026-07-07 17:46:46] [Daemon] Phishing active. Template: m365, Redirect: https://demoafrica.co/
+[2026-07-07 17:46:59] [Daemon] Client connected: ('127.0.0.1', 54720)
+[2026-07-07 17:47:11] [Daemon] Client connected: ('127.0.0.1', 54732)

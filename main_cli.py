@@ -101,6 +101,12 @@ def start(targets, interface, dns_redirect, verbose, yes):
     config = merge_with_cli(config, cli_args)
     validate_config(config)
 
+    # Always write traffic/creds logs to logs_user/ so the GUI daemon can tail them
+    import pathlib
+    pathlib.Path("logs_user").mkdir(exist_ok=True)
+    config.traffic_log_file = "logs_user/traffic.jsonl"
+    config.creds_log_file = "logs_user/credentials.jsonl"
+
     # Setup logging
     setup_logging(config.log_file, config.log_level, config.max_log_size_mb, config.log_backup_count, verbose)
 

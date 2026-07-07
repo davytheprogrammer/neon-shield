@@ -45,10 +45,23 @@ async def broadcast(message_dict):
     if not connected_clients:
         return
     message_str = json.dumps(message_dict)
-    # Create list of tasks to run concurrently
     tasks = [asyncio.create_task(client.send(message_str)) for client in connected_clients]
     if tasks:
         await asyncio.wait(tasks)
+
+async def heartbeat_loop():
+    """Broadcasts a lightweight heartbeat every 5 seconds so the frontend
+    can clearly distinguish 'connected but idle' from 'disconnected'."""
+    while True:
+        await asyncio.sleep(5)
+        if connected_clients:
+            await broadcast({
+                "type": "heartbeat",
+                "ts": time.time(),
+                "running": active_process is not None,
+                "process": active_process_name,
+                "clients": len(connected_clients)
+            })
 
 async def tail_file(file_path, msg_type):
     """Tails a file asynchronously and broadcasts new lines as JSON to clients."""
@@ -693,9 +706,9 @@ async def main():
     # Start log tailing background tasks
     traffic_task = asyncio.create_task(tail_file(TRAFFIC_LOG, "traffic"))
     creds_task = asyncio.create_task(tail_file(CREDS_LOG, "creds"))
+    heartbeat_task = asyncio.create_task(heartbeat_loop())
     
     async with websockets.serve(ws_handler, HOST, PORT):
-        # Keep running forever
         try:
             await asyncio.Future()  # run forever
         except asyncio.CancelledError:
@@ -704,6 +717,7 @@ async def main():
             log_daemon("Shutting down daemon...")
             traffic_task.cancel()
             creds_task.cancel()
+            heartbeat_task.cancel()
             await stop_active_process()
 
 if __name__ == "__main__":

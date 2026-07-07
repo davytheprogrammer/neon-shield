@@ -126,6 +126,10 @@ function App() {
   const [trafficProtocolFilter, setTrafficProtocolFilter] = useState("all");
   const [trafficMethodFilter, setTrafficMethodFilter] = useState("all");
   const [trafficInterceptFilter, setTrafficInterceptFilter] = useState("all");
+  // Connection diagnostics
+  const [lastHeartbeat, setLastHeartbeat] = useState(null);
+  const [heartbeatCount, setHeartbeatCount] = useState(0);
+  const [lastPacketTs, setLastPacketTs] = useState(null);
 
   // Demo Simulation Settings Drawer State
   const [showDemoController, setShowDemoController] = useState(true);
@@ -241,6 +245,7 @@ function App() {
             
           case "traffic":
             setTrafficLog(prev => [data, ...prev].slice(0, 500));
+            setLastPacketTs(Date.now());
             break;
             
           case "creds":
@@ -251,7 +256,13 @@ function App() {
           case "terminal":
             setTerminalLines(prev => [...prev, `[${data.process}] ${data.text}`].slice(-200));
             break;
-            
+
+          case "heartbeat":
+            setLastHeartbeat(Date.now());
+            setHeartbeatCount(c => c + 1);
+            if (data.running !== undefined) setMitmRunning(data.running);
+            break;
+
           default:
             break;
         }
@@ -1339,6 +1350,26 @@ The active attack path demonstrates typical credential-harvesting vectors:
           {/* TRAFFIC INSPECTOR TAB */}
           {activeTab === "traffic" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+
+              {/* Connection Diagnostic Status Bar */}
+              {appMode === "live" && (
+                <div style={{ background: wsConnected ? "rgba(0,230,118,0.04)" : "rgba(255,59,48,0.06)", border: `1px solid ${wsConnected ? "rgba(0,230,118,0.3)" : "rgba(255,59,48,0.35)"}`, borderRadius: "10px", padding: "0.6rem 1rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap", fontSize: "0.72rem", fontFamily: "monospace" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: wsConnected ? "var(--neon-green)" : "var(--neon-rose)", boxShadow: wsConnected ? "0 0 6px var(--neon-green)" : "0 0 6px var(--neon-rose)" }} />
+                    <span style={{ color: wsConnected ? "var(--neon-green)" : "var(--neon-rose)", fontWeight: "700" }}>{wsConnected ? "DAEMON CONNECTED" : "DAEMON DISCONNECTED"}</span>
+                  </div>
+                  <div style={{ color: "var(--text-secondary)" }}>Heartbeats: <span style={{ color: heartbeatCount > 0 ? "#fff" : "var(--text-muted)" }}>{heartbeatCount}</span></div>
+                  <div style={{ color: "var(--text-secondary)" }}>Last ping: <span style={{ color: lastHeartbeat ? "var(--neon-cyan)" : "var(--text-muted)" }}>{lastHeartbeat ? `${Math.round((Date.now()-lastHeartbeat)/1000)}s ago` : "—"}</span></div>
+                  <div style={{ color: "var(--text-secondary)" }}>Last packet: <span style={{ color: lastPacketTs ? "var(--neon-cyan)" : "var(--text-muted)" }}>{lastPacketTs ? `${Math.round((Date.now()-lastPacketTs)/1000)}s ago` : "none yet"}</span></div>
+                  <div style={{ color: "var(--text-secondary)" }}>Packets: <span style={{ color: "#fff", fontWeight: "700" }}>{trafficLog.length}</span></div>
+                  {wsConnected && !mitmRunning && (
+                    <div style={{ marginLeft: "auto", color: "#f59e0b", fontSize: "0.7rem" }}>⚠ Start MITM interception to capture packets</div>
+                  )}
+                  {!wsConnected && (
+                    <div style={{ marginLeft: "auto", color: "var(--neon-rose)", fontSize: "0.7rem" }}>To fix: <code style={{ background: "rgba(0,0,0,0.4)", padding: "1px 6px", borderRadius: "3px" }}>sudo fuser -k 8766/tcp</code> then restart daemon</div>
+                  )}
+                </div>
+              )}
 
               {/* WiFi / Network Context Banner */}
               {netInfo && (
