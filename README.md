@@ -46,28 +46,39 @@ Fire up the proxy daemon inside your laboratory network:
 ```bash
 python3 proxy.py
 ```
-By default, the engine will bind to port `8080` on all local interfaces.
+The engine binds to port `8080` on all local interfaces (`0.0.0.0`), meaning it's reachable from both your local machine and other devices on the same Wi-Fi/local network.
 
-### 2. Establish Certificate Trust
-For HTTPS decryption to succeed without client security violations, the client system/browser must explicitly import and trust the generated Root Certificate Authority (`certs/ca.crt`):
+### 2. Connect Local Devices (Wi-Fi Interception)
+To intercept and configure a device on your local Wi-Fi:
+1. Ensure your test device (e.g., iPhone, Android phone, or another laptop) is connected to the **same Wi-Fi network**.
+2. Open a browser on the device and navigate to:
+   ```
+   http://<proxy-host-ip>:8080
+   ```
+   *(The terminal console will print your host's local IP address when starting up.)*
+3. You will see the **NEON-SHIELD Dashboard**.
+4. Tap **Download Root CA Certificate** to save `ca.crt` to your device.
+5. Follow the step-by-step instructions on the dashboard corresponding to your device (iOS, Android, or desktop OS) to install and trust the Root CA certificate.
+6. Configure the device's Wi-Fi network settings to use a **Manual Proxy**:
+   - **Server/Host IP**: `<proxy-host-ip>`
+   - **Port**: `8080`
 
-*   **Linux System Trust:**
-    ```bash
-    sudo cp certs/ca.crt /usr/local/share/ca-certificates/neon-shield-ca.crt
-    sudo update-ca-certificates
-    ```
-*   **Browser Trust:** Settings -> Certificates -> View Certificates -> Import `certs/ca.crt` -> Check "Trust this CA to identify websites".
+### 3. Quickstart Validation (Localhost CLI)
+If testing locally on the proxy host machine:
 
-### 3. Route Traffic
-Define your terminal session or browser proxy path:
+#### Linux System CA Trust Setup:
+```bash
+sudo cp certs/ca.crt /usr/local/share/ca-certificates/neon-shield-ca.crt
+sudo update-ca-certificates
+```
+
+#### Set Terminal Proxy Environment:
 ```bash
 export http_proxy=http://127.0.0.1:8080
 export https_proxy=http://127.0.0.1:8080
 ```
 
-### 4. Trigger Interception
-Fetch network resources through the proxy connection:
-
+#### Run Curl Validation:
 ```bash
 # HTTP test request
 curl -v -x http://127.0.0.1:8080 http://example.com/some-asset.png -o test_http.png
@@ -75,7 +86,7 @@ curl -v -x http://127.0.0.1:8080 http://example.com/some-asset.png -o test_http.
 # HTTPS test request
 curl -v -x http://127.0.0.1:8080 --cacert certs/ca.crt https://example.com/some-secure-asset.png -o test_https.png
 ```
-*Observe that the retrieved images are substituted with the RAX logo payload.*
+*Observe that the retrieved images are substituted with the RAX logo payload, and metrics will update live on the dashboard.*
 
 ---
 

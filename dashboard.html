@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON-SHIELD // Proxy Control Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-surface: rgba(13, 20, 38, 0.6);
+            --border-glow: rgba(0, 242, 254, 0.15);
+            --accent-cyan: #00f2fe;
+            --accent-purple: #4facfe;
+            --accent-green: #39ff14;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 3rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header block */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 1.5rem;
+        }
+
+        .logo-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .logo-group h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-group p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(57, 255, 20, 0.1);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(57, 255, 20, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 12px 40px 0 rgba(0, 242, 254, 0.08);
+        }
+
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .metric-val {
+            font-size: 2.25rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, #fff 30%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-val.green {
+            background: linear-gradient(135deg, #fff 30%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-val.cyan {
+            background: linear-gradient(135deg, #fff 30%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* CA Download section */
+        .ca-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .ca-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .ca-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .ca-header p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
+            color: #060913;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 26px rgba(0, 242, 254, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .download-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        /* Instructions Accordion */
+        .instructions-header {
+            margin-top: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 0.75rem;
+        }
+
+        .accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .accordion-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-trigger {
+            width: 100%;
+            padding: 1.25rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .accordion-trigger:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .accordion-trigger svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+            stroke: var(--text-secondary);
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        .accordion-item.active {
+            border-color: rgba(0, 242, 254, 0.25);
+        }
+
+        .accordion-item.active .accordion-trigger svg {
+            transform: rotate(180deg);
+            stroke: var(--accent-cyan);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .accordion-body {
+            padding: 1.25rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        ol {
+            margin-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        li strong {
+            color: var(--text-primary);
+        }
+
+        .code-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            margin: 0.5rem 0;
+            overflow-x: auto;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .note-box {
+            background: rgba(255, 170, 0, 0.05);
+            border-left: 3px solid #ffaa00;
+            padding: 0.75rem 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            color: #ffd073;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-group">
+                <h1>NEON-SHIELD</h1>
+                <p>Mitm Interception Engine</p>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>ONLINE</span>
+            </div>
+        </header>
+
+        <section class="metrics-grid">
+            <div class="card metric-card">
+                <span class="metric-label">Server IP Address</span>
+                <span class="metric-val cyan" id="server-ip" style="font-size: 1.6rem; margin-top: 0.5rem; word-break: break-all;">{LOCAL_IP}</span>
+            </div>
+            <div class="card metric-card">
+                <span class="metric-label">Proxy Listen Port</span>
+                <span class="metric-val" id="server-port">{PORT}</span>
+            </div>
+            <div class="card metric-card">
+                <span class="metric-label">Inspected Connections</span>
+                <span class="metric-val" id="conn-count">0</span>
+            </div>
+            <div class="card metric-card">
+                <span class="metric-label">Replaced Images</span>
+                <span class="metric-val green" id="replaced-count">0</span>
+            </div>
+        </section>
+
+        <section class="card ca-section">
+            <div class="ca-header">
+                <h2>Import Root Certificate Authority</h2>
+                <p>
+                    Modern web browsers mandate valid SSL/TLS certificates. To intercept and audit HTTPS connections 
+                    without certificate warnings, you must trust Neon-Shield's generated Root Certificate Authority on your device.
+                </p>
+            </div>
+            <div>
+                <a href="/ca.crt" class="download-btn">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    Download Root CA Certificate
+                </a>
+            </div>
+            <div class="note-box">
+                <strong>🔒 security note:</strong> Only install and trust this certificate on devices designated for development and security testing. Remove or disable the trust profile when done.
+            </div>
+        </section>
+
+        <h3 class="instructions-header">Device Configuration Guides</h3>
+
+        <section class="accordion">
+            <div class="accordion-item">
+                <button class="accordion-trigger">
+                    <span>1. Connect and Route Device Traffic</span>
+                    <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <p>To inspect traffic from a phone or other computer on the same Wi-Fi network:</p>
+                        <ol>
+                            <li>Ensure your testing device is connected to the <strong>same Wi-Fi network</strong> as this host machine.</li>
+                            <li>Open your testing device's Wi-Fi network settings.</li>
+                            <li>Locate the <strong>Proxy</strong> setting (usually under "Advanced" or "Configure Proxy") and change it to <strong>Manual</strong>.</li>
+                            <li>Enter the following credentials:</li>
+                        </ol>
+                        <div class="code-box">
+                            <span>Host/IP: {LOCAL_IP}</span>
+                            <button class="copy-btn" onclick="copyText('{LOCAL_IP}')">Copy</button>
+                        </div>
+                        <div class="code-box">
+                            <span>Port: {PORT}</span>
+                            <button class="copy-btn" onclick="copyText('{PORT}')">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-trigger">
+                    <span>2. Apple iOS Certificate Trust Setup</span>
+                    <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <ol>
+                            <li>Open Safari on your iOS device and browse to <code style="color:var(--accent-cyan)">http://{LOCAL_IP}:{PORT}/ca.crt</code> (or tap the download button above).</li>
+                            <li>A prompt will ask to download a configuration profile. Tap <strong>Allow</strong>.</li>
+                            <li>Open the <strong>Settings</strong> app on your device. You should see a <strong>Profile Downloaded</strong> button near the top. Tap it.</li>
+                            <li>Tap <strong>Install</strong> in the top-right corner, enter your passcode, and confirm the installation.</li>
+                            <li>Go back to the main Settings page, then navigate to: <strong>General</strong> &rarr; <strong>About</strong> &rarr; <strong>Certificate Trust Settings</strong> (at the very bottom).</li>
+                            <li>Locate <strong>EduLab Root CA</strong> under "Enable full trust for root certificates" and toggle the switch to <strong>ON</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-trigger">
+                    <span>3. Google Android Certificate Trust Setup</span>
+                    <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <ol>
+                            <li>Open Chrome on your Android device and navigate to <code style="color:var(--accent-cyan)">http://{LOCAL_IP}:{PORT}/ca.crt</code> to download the certificate file.</li>
+                            <li>Open the device <strong>Settings</strong> and search for <strong>CA Certificate</strong> or <strong>Encryption & Credentials</strong>.</li>
+                            <li>Navigate to <strong>Install a certificate</strong> &rarr; <strong>CA certificate</strong>.</li>
+                            <li>You may see a warning indicating safety risks. Choose <strong>Install Anyway</strong>.</li>
+                            <li>Select the downloaded <code style="color:var(--accent-cyan)">neon_shield_ca.crt</code> file.</li>
+                            <li>Name the certificate (e.g., "Neon Shield CA") and tap OK/Install.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-trigger">
+                    <span>4. Desktop Browsers & OS Trust</span>
+                    <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <p>If you are routing traffic from another computer:</p>
+                        <ol>
+                            <li><strong>Google Chrome / Microsoft Edge:</strong> Settings &rarr; Privacy and security &rarr; Security &rarr; Manage certificates &rarr; Trusted Root Certification Authorities &rarr; Import.</li>
+                            <li><strong>Mozilla Firefox:</strong> Settings &rarr; Privacy & Security &rarr; Certificates &rarr; View Certificates &rarr; Authorities &rarr; Import. Mark "Trust this CA to identify websites".</li>
+                            <li><strong>Linux (Ubuntu/Debian):</strong>
+                                <div class="code-box" style="display: block;">
+                                    sudo cp certs/ca.crt /usr/local/share/ca-certificates/neon-shield-ca.crt<br>
+                                    sudo update-ca-certificates
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Setup accordion triggers
+        const triggers = document.querySelectorAll('.accordion-trigger');
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const item = trigger.parentElement;
+                const content = trigger.nextElementSibling;
+                const isActive = item.classList.contains('active');
+                
+                // Close other items
+                document.querySelectorAll('.accordion-item').forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('.accordion-content').style.maxHeight = null;
+                });
+                
+                if (!isActive) {
+                    item.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        });
+
+        // Automatically open the first accordion item
+        if (triggers.length > 0) {
+            triggers[0].click();
+        }
+
+        // Copy helper
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard: ' + text);
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Stats update poller
+        async function updateStats() {
+            try {
+                const response = await fetch('/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    const connEl = document.getElementById('conn-count');
+                    const replacedEl = document.getElementById('replaced-count');
+                    
+                    if (connEl.innerText !== String(data.total_connections)) {
+                        connEl.innerText = data.total_connections;
+                        flashElement(connEl, 'var(--accent-cyan)');
+                    }
+                    if (replacedEl.innerText !== String(data.images_substituted)) {
+                        replacedEl.innerText = data.images_substituted;
+                        flashElement(replacedEl, 'var(--accent-green)');
+                    }
+                }
+            } catch (e) {
+                console.error("Error updating stats:", e);
+            }
+        }
+
+        function flashElement(el, color) {
+            el.style.transition = 'none';
+            el.style.textShadow = '0 0 15px ' + color;
+            el.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                el.style.transition = 'all 0.5s ease';
+                el.style.textShadow = 'none';
+                el.style.transform = 'scale(1)';
+            }, 100);
+        }
+
+        // Poll stats every 2 seconds
+        setInterval(updateStats, 2000);
+        updateStats(); // Init
+    </script>
+</body>
+</html>
