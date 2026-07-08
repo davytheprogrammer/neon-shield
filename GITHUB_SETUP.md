@@ -6,7 +6,7 @@
 
 1. Go to https://github.com/new
 2. Name it: `neon-shield`
-3. Description: "Advanced MITM Lab for Authorized Security Research (Educational Use Only)"
+3. Description: "Production-grade Man-in-the-Middle (MITM) proxy & cybersecurity research platform. Executes ARP spoofing, DNS hijacking, SSL/TLS decryption, and dynamic content injection for security audits, penetration testing demonstrations, and educational research."
 4. Make it **Private** (recommended) or Public (your choice)
 5. Click **Create repository**
 
