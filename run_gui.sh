@@ -1,5 +1,5 @@
 #!/bin/bash
-# Startup script for NEON-SHIELD GUI & Daemon
+# Startup script for MITM-INTERCEPT GUI & Daemon
 
 # Color codes
 RED='\033[0;31m'
@@ -8,7 +8,7 @@ CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}⚡ NEON-SHIELD GUI Launcher ⚡${NC}"
+echo -e "${CYAN}⚡ MITM-INTERCEPT GUI Launcher ⚡${NC}"
 echo -e "======================================"
 
 # Ensure we're in the repository root directory

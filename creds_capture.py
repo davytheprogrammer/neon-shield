@@ -1,5 +1,5 @@
 """
-Credential-capture helpers for NEON-SHIELD.
+Credential-capture helpers for MITM-INTERCEPT.
 
 Demonstrates -- for your own authorized test accounts/devices only -- why
 plaintext HTTP and untrusted TLS interception are dangerous: it looks for

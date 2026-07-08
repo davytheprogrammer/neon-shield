@@ -1,5 +1,5 @@
 """
-ARP poisoning engine for NEON-SHIELD auto mode.
+ARP poisoning engine for MITM-INTERCEPT auto mode.
 
 Places this host in the traffic path between one or more target devices and
 the LAN gateway by sending forged ARP replies, so their traffic transits this

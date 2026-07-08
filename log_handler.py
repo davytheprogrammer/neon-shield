@@ -1,5 +1,5 @@
 """
-Logging handler for NEON-SHIELD.
+Logging handler for MITM-INTERCEPT.
 
 Provides structured logging to file and console with rotation.
 """

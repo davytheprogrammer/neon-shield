@@ -1,5 +1,5 @@
 """
-Session Hijacking & Token Theft for NEON-SHIELD Phase 2.
+Session Hijacking & Token Theft for MITM-INTERCEPT Phase 2.
 
 Extracts stolen browser cookies, OAuth tokens, JWT tokens, and API keys
 from intercepted traffic. Can then replay them to hijack user sessions

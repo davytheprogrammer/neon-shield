@@ -1,4 +1,4 @@
-# 🚀 NEON-SHIELD Phase 1: Quick Start Guide
+# 🚀 MITM-INTERCEPT Phase 1: Quick Start Guide
 
 **Close-Range WiFi Attack Demonstrations**
 
@@ -20,7 +20,7 @@ You will be asked to confirm authorization **multiple times**. This is intention
 
 ### Attack 1: Rogue Access Point (Evil Twin)
 
-**What it does:** Creates a fake WiFi network. Nearby devices auto-connect, exposing all traffic to NEON-SHIELD.
+**What it does:** Creates a fake WiFi network. Nearby devices auto-connect, exposing all traffic to MITM-INTERCEPT.
 
 **Startup command (one line):**
 ```bash
@@ -28,9 +28,9 @@ sudo python3 main_cli.py phase1 ap-mode --ssid "Starbucks_WiFi" -y
 ```
 
 **What happens:**
-1. NEON-SHIELD broadcasts fake "Starbucks_WiFi" network
+1. MITM-INTERCEPT broadcasts fake "Starbucks_WiFi" network
 2. Nearby devices that previously connected to Starbucks auto-join
-3. All their traffic now flows through NEON-SHIELD
+3. All their traffic now flows through MITM-INTERCEPT
 4. You can see passwords, emails, messages in real-time
 5. Press Ctrl+C to stop
 
@@ -194,7 +194,7 @@ sudo apt-get install aircrack-ng
 ## 🎬 Demo Walkthrough (Home Lab)
 
 ### Setup: Two WiFi-enabled devices
-- Device A: Attacker machine (Linux laptop with NEON-SHIELD)
+- Device A: Attacker machine (Linux laptop with MITM-INTERCEPT)
 - Device B: Target device (iPhone, Android, or another laptop)
 
 ### Demo Steps:

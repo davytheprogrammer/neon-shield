@@ -1,5 +1,5 @@
 """
-Reconnaissance & Site Exploitation Engine for NEON-SHIELD.
+Reconnaissance & Site Exploitation Engine for MITM-INTERCEPT.
 
 Takes a website URL and:
 - Checks for exposed secrets (API keys, credentials, tokens)

@@ -1,8 +1,8 @@
-# NEON-SHIELD Setup Guide
+# MITM-INTERCEPT Setup Guide
 
 ## ⚠️ DISCLAIMER — READ FIRST
 
-**AUTHORIZED USE ONLY.** NEON-SHIELD performs federal-crime-level MITM attacks:
+**AUTHORIZED USE ONLY.** MITM-INTERCEPT performs federal-crime-level MITM attacks:
 - ARP spoofing
 - TLS decryption
 - Credential capture
@@ -24,8 +24,8 @@ By continuing, you confirm:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/neon-shield.git
-cd neon-shield
+git clone https://github.com/yourusername/mitm-intercept.git
+cd mitm-intercept
 
 # Install dependencies
 pip install -r requirements.txt
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 chmod +x cleanup.sh
 
 # (Optional) Install systemd service
-sudo cp neon-shield.service /etc/systemd/system/
+sudo cp mitm-intercept.service /etc/systemd/system/
 sudo systemctl daemon-reload
 ```
 
@@ -55,7 +55,7 @@ This runs an interactive setup wizard that asks you to:
 - Configure DNS spoofing (optional)
 - Set logging preferences
 
-Your answers are saved to `neon-shield.yml`.
+Your answers are saved to `mitm-intercept.yml`.
 
 ### 2. Start Interception
 
@@ -88,7 +88,7 @@ Both restore your ARP tables and remove firewall rules.
 | Command | Purpose |
 |---------|---------|
 | `init` | Interactive setup wizard |
-| `start` | Start interception (loads config from neon-shield.yml) |
+| `start` | Start interception (loads config from mitm-intercept.yml) |
 | `stop` | Stop & restore network |
 | `status` | Check current status |
 | `cleanup` | Emergency recovery (restore everything) |
@@ -114,7 +114,7 @@ sudo cleanup.sh
 
 ## Configuration
 
-Edit `neon-shield.yml` to customize:
+Edit `mitm-intercept.yml` to customize:
 
 ```yaml
 network:
@@ -132,7 +132,7 @@ dns_spoofing:
 
 logging:
   level: INFO              # DEBUG, INFO, WARN, ERROR
-  file: logs/neon-shield.log
+  file: logs/mitm-intercept.log
   enable_traffic_log: true
   enable_creds_log: true
 ```
@@ -142,7 +142,7 @@ logging:
 ## Troubleshooting
 
 ### "Permission denied"
-NEON-SHIELD requires root for ARP spoofing & iptables. Run with `sudo`.
+MITM-INTERCEPT requires root for ARP spoofing & iptables. Run with `sudo`.
 
 ### "Device not being intercepted"
 - Verify device is on the same LAN (not VPN, not different VLAN)
@@ -150,7 +150,7 @@ NEON-SHIELD requires root for ARP spoofing & iptables. Run with `sudo`.
 - Verify iptables rules: `sudo iptables -t nat -L PREROUTING -n`
 
 ### "Certificate not trusted" on target
-**This is normal and expected.** HTTPS security is working as designed. To see decrypted HTTPS traffic, the target device must manually download and trust the NEON-SHIELD Root CA from http://proxy-ip:8080/ca.crt
+**This is normal and expected.** HTTPS security is working as designed. To see decrypted HTTPS traffic, the target device must manually download and trust the MITM-INTERCEPT Root CA from http://proxy-ip:8080/ca.crt
 
 ### Network doesn't recover after crash
 Run the emergency cleanup script:
@@ -164,17 +164,17 @@ sudo ./cleanup.sh
 
 ### Systemd Service
 
-Install NEON-SHIELD as a system service:
+Install MITM-INTERCEPT as a system service:
 
 ```bash
-sudo cp neon-shield.service /etc/systemd/system/
-sudo systemctl enable neon-shield
-sudo systemctl start neon-shield
+sudo cp mitm-intercept.service /etc/systemd/system/
+sudo systemctl enable mitm-intercept
+sudo systemctl start mitm-intercept
 ```
 
 Monitor logs:
 ```bash
-sudo journalctl -u neon-shield -f
+sudo journalctl -u mitm-intercept -f
 ```
 
 ### Custom Content Rules
@@ -183,7 +183,7 @@ Edit `content_rules.py` to add new transformations (e.g., replace videos, modify
 
 ### Health Monitoring
 
-NEON-SHIELD runs background health checks (configurable in `neon-shield.yml`):
+MITM-INTERCEPT runs background health checks (configurable in `mitm-intercept.yml`):
 - Verifies ARP spoofing is still active
 - Checks iptables rules are in place
 - Auto-recovers if components fail
@@ -197,7 +197,7 @@ sudo python3 main_cli.py start --verbose
 
 ## For Penetration Testers
 
-NEON-SHIELD is designed for authorized security research. Example workflow:
+MITM-INTERCEPT is designed for authorized security research. Example workflow:
 
 1. **Setup:** `sudo python3 main_cli.py init` (answer prompts for client network)
 2. **Dry-run:** `python3 main_cli.py test` (validate before starting)

@@ -1,4 +1,4 @@
-# ⚡ NEON-SHIELD // MITM Proxy Lab
+# ⚡ MITM-INTERCEPT // MITM Proxy Lab
 
 ```
    _  _ ___ ___  _  _    ___ _  _ ___ ___ _    ___
@@ -8,7 +8,7 @@
       [!] INTERCEPT // INSPECT // TRANSFORM 
 ```
 
-**NEON-SHIELD is a powerful, all-in-one MITM proxy for authorized security research & education only.** It demonstrates real-world network attack surfaces and why modern security (HTTPS, certificate pinning, network segmentation) matters by performing active Man-in-the-Middle attacks in a controlled lab environment.
+**MITM-INTERCEPT is a powerful, all-in-one MITM proxy for authorized security research & education only.** It demonstrates real-world network attack surfaces and why modern security (HTTPS, certificate pinning, network segmentation) matters by performing active Man-in-the-Middle attacks in a controlled lab environment.
 
 ---
 
@@ -16,7 +16,7 @@
 
 **THIS IS AN AUTHORIZED-USE-ONLY TOOL. UNAUTHORIZED USE IS ILLEGAL.**
 
-NEON-SHIELD performs active MITM attacks that are **federal crimes without explicit authorization**:
+MITM-INTERCEPT performs active MITM attacks that are **federal crimes without explicit authorization**:
 - **ARP spoofing** to intercept traffic from devices on your network
 - **TLS decryption** to read "secure" HTTPS traffic
 - **Credential capture** to log passwords/auth tokens
@@ -42,7 +42,7 @@ By using this tool, you confirm:
 
 ## 🌌 CAPABILITIES
 
-NEON-SHIELD is a complete MITM toolkit for demonstrating real attacks:
+MITM-INTERCEPT is a complete MITM toolkit for demonstrating real attacks:
 
 ### Core Interception
 - **Automatic ARP Spoofing:** Routes target devices' traffic through this host with zero configuration on the target devices.
@@ -89,13 +89,13 @@ The tool is modular and designed for extensibility:
 
 ## 💻 QUICKSTART
 
-NEON-SHIELD is designed to "just work" on your lab network with a single command.
+MITM-INTERCEPT is designed to "just work" on your lab network with a single command.
 
 ### 1. Clone & Install
 
 ```bash
 git clone <this-repo>
-cd neon-shield
+cd mitm-intercept
 pip install -r requirements.txt  # Installs: cryptography, scapy
 ```
 
@@ -150,7 +150,7 @@ Understanding the mechanisms helps you appreciate why modern security defenses e
 
 ### 1. ARP Spoofing
 
-Devices on a LAN use ARP (Address Resolution Protocol) to map IP addresses to MAC addresses. Without ARP spoofing, your traffic goes directly to the gateway. NEON-SHIELD forges ARP replies claiming "I am the gateway at MAC address XX:XX:XX:..." — so all target devices route their traffic through this host instead. **Why it matters:** This is why switches support Dynamic ARP Inspection (DAI) and why encrypted VPNs work (they bypass the LAN entirely).
+Devices on a LAN use ARP (Address Resolution Protocol) to map IP addresses to MAC addresses. Without ARP spoofing, your traffic goes directly to the gateway. MITM-INTERCEPT forges ARP replies claiming "I am the gateway at MAC address XX:XX:XX:..." — so all target devices route their traffic through this host instead. **Why it matters:** This is why switches support Dynamic ARP Inspection (DAI) and why encrypted VPNs work (they bypass the LAN entirely).
 
 ### 2. Transparent Redirect
 
@@ -163,13 +163,13 @@ Devices never see a proxy setting — they believe they're talking directly to t
 
 ### 3. TLS Interception
 
-When an intercepted device tries HTTPS, this host presents a fake certificate. If the device trusts NEON-SHIELD's Root CA (installed manually), the TLS handshake succeeds and the proxy reads the plaintext traffic. If the device **doesn't** trust the CA, the browser shows a big red warning.
+When an intercepted device tries HTTPS, this host presents a fake certificate. If the device trusts MITM-INTERCEPT's Root CA (installed manually), the TLS handshake succeeds and the proxy reads the plaintext traffic. If the device **doesn't** trust the CA, the browser shows a big red warning.
 
-**Critical detail:** NEON-SHIELD does NOT silently bypass HTTPS. It demonstrates why certificate validation warnings exist. If a device sees "Untrusted certificate," that's the security working as designed. **Why it matters:** This is why Public Key Pinning (PKP), certificate transparency, and hardware security tokens exist — they prevent even authorized administrators from MITM'ing encrypted traffic.
+**Critical detail:** MITM-INTERCEPT does NOT silently bypass HTTPS. It demonstrates why certificate validation warnings exist. If a device sees "Untrusted certificate," that's the security working as designed. **Why it matters:** This is why Public Key Pinning (PKP), certificate transparency, and hardware security tokens exist — they prevent even authorized administrators from MITM'ing encrypted traffic.
 
 ### 4. Content Modification & Credential Capture
 
-Once traffic is decrypted, NEON-SHIELD can:
+Once traffic is decrypted, MITM-INTERCEPT can:
 - Replace images, inject HTML banners, modify JSON responses
 - Extract credentials from login forms and Basic Auth headers
 - Log all activity to a local database
@@ -178,13 +178,13 @@ Once traffic is decrypted, NEON-SHIELD can:
 
 ### 5. DNS Spoofing
 
-If enabled, NEON-SHIELD spoofs DNS replies for a configured set of domains (example: `example.com → 192.168.1.1`). Everything else is forwarded untouched to the real DNS server. **Why it matters:** Demonstrates how phishing infrastructure works, and why DNS-over-HTTPS (DoH) and DNSSEC exist.
+If enabled, MITM-INTERCEPT spoofs DNS replies for a configured set of domains (example: `example.com → 192.168.1.1`). Everything else is forwarded untouched to the real DNS server. **Why it matters:** Demonstrates how phishing infrastructure works, and why DNS-over-HTTPS (DoH) and DNSSEC exist.
 
 ---
 
 ## 🔐 STAYING SAFE (Defensive Strategies)
 
-Understanding how NEON-SHIELD works highlights real defenses used in production:
+Understanding how MITM-INTERCEPT works highlights real defenses used in production:
 
 | Attack Vector | Defense |
 |---|---|
@@ -199,10 +199,10 @@ Understanding how NEON-SHIELD works highlights real defenses used in production:
 
 ## 📖 EDUCATIONAL VALUE
 
-NEON-SHIELD is most valuable when used to:
+MITM-INTERCEPT is most valuable when used to:
 
 1. **Demonstrate real attack surface:** Show students/colleagues why their device/network is vulnerable to MITM attacks on untrusted Wi-Fi.
-2. **Test your defenses:** Run NEON-SHIELD against your own devices to verify that certificate pinning, HSTS, MFA, or network segmentation actually work.
+2. **Test your defenses:** Run MITM-INTERCEPT against your own devices to verify that certificate pinning, HSTS, MFA, or network segmentation actually work.
 3. **CTF / Capture the Flag:** Use as a proxy for CTF challenges that require MITM capabilities.
 4. **Security training:** Authorized security training courses can use it to show attackers' perspective.
 5. **Red team labs:** Signed penetration-test engagements.
@@ -215,7 +215,7 @@ NEON-SHIELD is most valuable when used to:
 
 ---
 
-## 🔧 ADVANCED: Extending NEON-SHIELD
+## 🔧 ADVANCED: Extending MITM-INTERCEPT
 
 The tool is designed for extensibility:
 
@@ -274,7 +274,7 @@ Edit `creds_capture.py` to detect additional auth schemes (OAuth tokens, JWT hea
 - Run with `sudo`. The tool requires root for ARP spoofing and firewall rules.
 
 **"Certificate not trusted" on target device**
-- Normal and expected. The device must manually download and install the NEON-SHIELD Root CA. See the LAN dashboard for device-specific instructions.
+- Normal and expected. The device must manually download and install the MITM-INTERCEPT Root CA. See the LAN dashboard for device-specific instructions.
 
 **Traffic not being intercepted**
 - Verify the target device is on the same LAN (not on a different VLAN or remote network).
@@ -302,4 +302,4 @@ This project is provided as-is for educational and authorized security research 
 
 ---
 
-**NEON-SHIELD: Demonstrating why network security and HTTPS matter.** 🔐
+**MITM-INTERCEPT: Demonstrating why network security and HTTPS matter.** 🔐

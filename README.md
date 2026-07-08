@@ -5,7 +5,7 @@
 > * **ENGAGEMENT POLICY:** Technical contributions, issue reports, and defensive suggestions are highly welcomed.
 > * **SUPPORT THE PROJECT:** If this research suite empowers your work, please consider dropping a **⭐ Star**, **🍴 Forking** the codebase, or **👀 Watching** to track updates.
 
-# ⚡ NEON-SHIELD v2.0 — Advanced MITM Lab
+# ⚡ MITM-INTERCEPT v2.0 — Advanced MITM Lab
 
 > [!WARNING]
 > **RESTRICTED RESEARCH TOOL.** Authorized security audits, penetration testing demonstrations, and defensive security training only. Unauthorized layer-2 manipulation, packet interception, and TLS tampering are major offenses under international computer misuse regulations.
@@ -20,7 +20,7 @@
 
 ### The Cyber-Security Research & Demonstration Environment
 
-**NEON-SHIELD** is a production-grade, highly-extensible Man-in-the-Middle (MITM) network auditing and research platform. Architected for defensive security analysis, live vulnerability demonstration, and cybersecurity instruction, NEON-SHIELD exposes the mechanics of local network manipulation and security protocol bypasses.
+**MITM-INTERCEPT** is a production-grade, highly-extensible Man-in-the-Middle (MITM) network auditing and research platform. Architected for defensive security analysis, live vulnerability demonstration, and cybersecurity instruction, MITM-INTERCEPT exposes the mechanics of local network manipulation and security protocol bypasses.
 
 By executing real-world traffic interception and payload transformations, the platform provides security teams and researchers with the exact insights needed to deploy, test, and validate robust enterprise defenses—including HTTPS enforcement, strict certificate pinning, secure authentication mechanisms, and network micro-segmentation.
 
@@ -32,7 +32,7 @@ By executing real-world traffic interception and payload transformations, the pl
 > **UNAUTHORIZED INTERCEPTION IS A FELONY.**
 > Executing MITM interceptors on networks or devices without prior, written, explicit authorization from the respective asset owners is a severe breach of computer misuse acts worldwide.
 
-NEON-SHIELD integrates active threat simulation mechanics:
+MITM-INTERCEPT integrates active threat simulation mechanics:
 * **Layer-2 Redirection:** ARP cache poisoning to route target client traffic through the host.
 * **TLS Termination & Decryption:** Certificate spoofing to inspect encrypted HTTP/S application streams.
 * **Automatic Credential Extraction:** Regular expression scanners that pull passwords and tokens from login payloads.
@@ -41,7 +41,7 @@ NEON-SHIELD integrates active threat simulation mechanics:
 * **Full-Stream Auditing:** Logging HTTP request-response flows to local disk.
 
 ### Target Validation Agreement
-By compiling, deploying, or launching NEON-SHIELD, you explicitly assert that:
+By compiling, deploying, or launching MITM-INTERCEPT, you explicitly assert that:
 1. You possess signed, written permission authorizing network audits on all targeted hosts.
 2. The platform is operated solely within a designated, isolated laboratory or testing environment (e.g., dedicated VLANs, corporate ranges, or home labs).
 3. You assume all legal and operational liability for packets intercepted or altered by this software.
@@ -65,7 +65,7 @@ By compiling, deploying, or launching NEON-SHIELD, you explicitly assert that:
 * **Dynamic HTML/JS Injector:** Modify raw HTML responses, inject custom script banners, or hot-swap network images on the fly.
 
 ### ⚙️ Operational Stability & Reliability
-* **YAML Infrastructure File:** Centralize routes, modules, and target options within a unified configuration file (`neon-shield.yml`).
+* **YAML Infrastructure File:** Centralize routes, modules, and target options within a unified configuration file (`mitm-intercept.yml`).
 * **Active Watchdog Monitor:** Background health thread monitors ARP tables and firewall rules, executing automatic repairs upon failure.
 * **Crash-Resilient State Engine:** Log operational states to disk to support automatic restart and cleanup validation.
 * **Dry-Run Mode:** Execute config validations, network interface checks, and routing table reviews without firing active spoofs.
@@ -73,14 +73,14 @@ By compiling, deploying, or launching NEON-SHIELD, you explicitly assert that:
 * **Systemd Integration:** Package and run the platform daemon as a persistent system service.
 
 ### 💻 Unified Command-Line Interface
-NEON-SHIELD exposes a clean CLI syntax to manage local interceptors:
+MITM-INTERCEPT exposes a clean CLI syntax to manage local interceptors:
 ```bash
-neon-shield init      # Run the interactive configuration wizard
-neon-shield start     # Load settings and activate local redirection
-neon-shield stop      # Cease active interception and restore target tables
-neon-shield status    # Audit running modules and component health
-neon-shield cleanup   # Execute manual recovery and flush system tables
-neon-shield test      # Validate config limits and permissions (dry-run)
+mitm-intercept init      # Run the interactive configuration wizard
+mitm-intercept start     # Load settings and activate local redirection
+mitm-intercept stop      # Cease active interception and restore target tables
+mitm-intercept status    # Audit running modules and component health
+mitm-intercept cleanup   # Execute manual recovery and flush system tables
+mitm-intercept test      # Validate config limits and permissions (dry-run)
 ```
 
 ### 📊 Administrative Monitoring Panels
@@ -91,7 +91,7 @@ neon-shield test      # Validate config limits and permissions (dry-run)
 
 ## 🛡️ [0x02] Threat Matrix & Defensive Alignment
 
-NEON-SHIELD is built to validate modern network defenses by demonstrating the exact mechanisms utilized to bypass them:
+MITM-INTERCEPT is built to validate modern network defenses by demonstrating the exact mechanisms utilized to bypass them:
 
 | Threat Vector | Interception Demonstration | Enterprise-Grade Countermeasure |
 | :--- | :--- | :--- |
@@ -109,8 +109,8 @@ NEON-SHIELD is built to validate modern network defenses by demonstrating the ex
 ### 1. Clone & Install Dependencies
 Verify Python 3.8+ and `pip` are configured on your host system:
 ```bash
-git clone https://github.com/YOUR_USERNAME/neon-shield.git
-cd neon-shield
+git clone https://github.com/YOUR_USERNAME/mitm-intercept.git
+cd mitm-intercept
 pip install -r requirements.txt
 chmod +x cleanup.sh
 ```
@@ -127,7 +127,7 @@ The assistant prompts for:
 * Activating content injection rules and DNS overrides.
 * Configuring log rotation files.
 
-Parameters are stored in [neon-shield.yml](neon-shield.yml).
+Parameters are stored in [mitm-intercept.yml](mitm-intercept.yml).
 
 ### 3. Initiate Active Mode
 Run the interceptor core:
@@ -160,14 +160,14 @@ sudo ./cleanup.sh
 
 Refer to these files for detailed setup options and structural references:
 * **[SETUP.md](SETUP.md):** Manual deployment options, routing setups, CLI arguments, and recovery steps.
-* **[neon-shield.yml](neon-shield.yml):** Reference configuration file containing descriptions for all modular attributes.
+* **[mitm-intercept.yml](mitm-intercept.yml):** Reference configuration file containing descriptions for all modular attributes.
 * **System Help:** Run `python3 main_cli.py --help` to list all command line arguments.
 
 ---
 
 ## 🏗️ [0x05] Architecture & Subsystem Layout
 
-The NEON-SHIELD core is divided into discrete, specialized modules:
+The MITM-INTERCEPT core is divided into discrete, specialized modules:
 
 * **[main_cli.py](main_cli.py):** Main entry point; a Click-based Command Line Interface.
 * **[proxy.py](proxy.py):** Core MITM proxy engine handling HTTP, HTTPS, and DNS socket listeners.
@@ -218,7 +218,7 @@ All logging outputs are structured in JSON Lines format (`.jsonl`), ready to be 
 
 ## 🎛️ [0x07] Operational Safeguards & Controls
 
-To minimize lab disruption, NEON-SHIELD embeds several protective constraints:
+To minimize lab disruption, MITM-INTERCEPT embeds several protective constraints:
 * **Privileged Escalation Guard:** ARP spoofing and routing rules fail safely if initialized without root/sudo clearance.
 * **Authorization Auditing:** The CLI forces a legal agreement confirmation before activation, which is written to persistent audit logs.
 * **Watchdog Watch:** The background thread checks routing entries every 5 seconds. If rules are altered or cleared, it attempts a recovery sequence.
@@ -229,7 +229,7 @@ To minimize lab disruption, NEON-SHIELD embeds several protective constraints:
 
 ## 📊 [0x08] Testing & QA Pipeline
 
-NEON-SHIELD utilizes a dedicated test suite to verify code stability:
+MITM-INTERCEPT utilizes a dedicated test suite to verify code stability:
 
 ```bash
 # Run all tests using pytest
@@ -246,7 +246,7 @@ pytest tests/ --cov=. --cov-report=html
 
 ## ⚙️ [0x09] Configuration Specification
 
-Options are declared inside `neon-shield.yml` and organized as follows:
+Options are declared inside `mitm-intercept.yml` and organized as follows:
 * **`network`:** Active interface binding, target gateway address, and discovery IP subnets.
 * **`content_rules`:** Target files and directories for injecting script codes or replacing image resources.
 * **`dns_spoof`:** Scoped DNS domain-to-IP configurations.
@@ -258,7 +258,7 @@ Options are declared inside `neon-shield.yml` and organized as follows:
 
 ## 🖥️ [0x0A] Desktop Control Hub: Building Tauri v2
 
-NEON-SHIELD packages a modern desktop interface developed with React and Tauri v2.
+MITM-INTERCEPT packages a modern desktop interface developed with React and Tauri v2.
 
 ### 1. Compile System Libraries (Linux / Ubuntu / Debian / Pop!_OS)
 Install dependencies and configure the Rust compiler toolchain:
@@ -339,7 +339,7 @@ We welcome developer involvement. When proposing pull requests:
 
 ## 📄 [0x0D] License & Terms
 
-NEON-SHIELD is licensed under the **MIT License**. For complete terms, see the `LICENSE` file.
+MITM-INTERCEPT is licensed under the **MIT License**. For complete terms, see the `LICENSE` file.
 
 > [!WARNING]
 > **Warranty Disclaimer:** The software is provided "as is" without warranty of any kind. Users assume all operational risks. The authors assume no liability for unauthorized, illegal, or unethical utilization of this platform.
@@ -356,7 +356,7 @@ NEON-SHIELD is licensed under the **MIT License**. For complete terms, see the `
 
 ---
 
-**NEON-SHIELD: Demonstrating why network security matters.** 🔐
+**MITM-INTERCEPT: Demonstrating why network security matters.** 🔐
 
 For questions or security concerns, open an issue on GitHub.
 

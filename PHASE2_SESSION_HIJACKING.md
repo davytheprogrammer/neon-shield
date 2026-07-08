@@ -1,4 +1,4 @@
-# 🔓 NEON-SHIELD Phase 2: Session Hijacking & Token Theft
+# 🔓 MITM-INTERCEPT Phase 2: Session Hijacking & Token Theft
 
 **Extract stolen browser cookies, OAuth tokens, JWT tokens, and API keys to hijack user sessions**
 
@@ -39,7 +39,7 @@ sudo python3 main_cli.py phase2 capture-sessions
 
 **What happens:**
 
-1. NEON-SHIELD starts monitoring traffic from all connected devices
+1. MITM-INTERCEPT starts monitoring traffic from all connected devices
 2. Every HTTP/HTTPS request is analyzed for tokens
 3. Tokens extracted in real-time:
    - HTTP Cookies (session_id, auth_token, etc)
@@ -52,7 +52,7 @@ sudo python3 main_cli.py phase2 capture-sessions
 
 **Why it's powerful:**
 - ✅ Completely automated (no manual extraction needed)
-- ✅ Works on HTTPS too (NEON-SHIELD decrypts with fake certs)
+- ✅ Works on HTTPS too (MITM-INTERCEPT decrypts with fake certs)
 - ✅ Captures everything including API keys developers thought were secure
 - ✅ Shows exactly what attackers on public WiFi can steal
 
@@ -258,7 +258,7 @@ Monitors all intercepted traffic and extracts:
 
 **Requirements:**
 - Root privileges (sudo)
-- NEON-SHIELD proxy must be running (traffic interception active)
+- MITM-INTERCEPT proxy must be running (traffic interception active)
 - Devices connected to rogue AP or on ARP-spoofed network
 
 ---
@@ -315,7 +315,7 @@ Shows how Phase 3 (malware injection) enables continuous theft.
 
 ### Setup
 
-- Device A: Attacker machine (Linux with NEON-SHIELD)
+- Device A: Attacker machine (Linux with MITM-INTERCEPT)
 - Device B: Victim device (iPhone, Android, or laptop)
 - Victim logged into Gmail, Facebook, or other services
 

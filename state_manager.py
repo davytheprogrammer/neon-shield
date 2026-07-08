@@ -1,5 +1,5 @@
 """
-State management for NEON-SHIELD.
+State management for MITM-INTERCEPT.
 
 Saves and restores execution state (spoofed IPs, active iptables rules, etc.)
 for crash recovery and clean shutdown.
@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-STATE_DIR = os.path.expanduser("~/.neon-shield")
+STATE_DIR = os.path.expanduser("~/.mitm-intercept")
 STATE_FILE = os.path.join(STATE_DIR, "state.json")
 
 

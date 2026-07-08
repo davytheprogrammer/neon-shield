@@ -1,5 +1,5 @@
 """
-Rogue WiFi Access Point for NEON-SHIELD Phase 1.
+Rogue WiFi Access Point for MITM-INTERCEPT Phase 1.
 
 Creates a fake WiFi network that nearby devices auto-connect to,
 enabling transparent MITM of all their traffic.
@@ -219,7 +219,7 @@ class RogueAccessPoint:
         logger.info(f"📡 Broadcasting: {self.ssid}")
         logger.info(f"📍 AP IP: {self.ap_ip}")
         logger.info(f"🔌 Clients will connect to: {self.ap_ip}")
-        logger.warning("⚠️  All client traffic now routes through NEON-SHIELD")
+        logger.warning("⚠️  All client traffic now routes through MITM-INTERCEPT")
 
         return True
 

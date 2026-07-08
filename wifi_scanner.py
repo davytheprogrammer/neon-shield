@@ -1,5 +1,5 @@
 """
-WiFi Network Scanner for NEON-SHIELD Phase 1.
+WiFi Network Scanner for MITM-INTERCEPT Phase 1.
 
 Scans nearby WiFi networks and detects vulnerabilities.
 Shows which networks use weak encryption and which devices are searching for networks.

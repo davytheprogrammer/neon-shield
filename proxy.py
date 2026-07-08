@@ -1,5 +1,5 @@
 """
-NEON-SHIELD MITM Proxy Lab — Auto-Mode Only (Educational Use)
+MITM-INTERCEPT MITM Proxy Lab — Auto-Mode Only (Educational Use)
 
 This is a POWERFUL demonstration tool for authorized security research &
 education ONLY. It performs active MITM attacks on local networks:
@@ -617,7 +617,7 @@ def handle_control_panel_client(client_conn, client_addr):
 
 AUTHORIZATION_BANNER = """
 ╔════════════════════════════════════════════════════════════════════╗
-║                  ⚡ NEON-SHIELD MITM PROXY LAB ⚡                  ║
+║                  ⚡ MITM-INTERCEPT MITM PROXY LAB ⚡                  ║
 ║                   FOR EDUCATIONAL PURPOSES ONLY                    ║
 ╠════════════════════════════════════════════════════════════════════╣
 ║                                                                    ║
@@ -654,11 +654,11 @@ def confirm_authorization(skip_prompt):
 
 def run_auto_mode(args):
     if os.name != "posix" or not sys.platform.startswith("linux"):
-        print("[Error] NEON-SHIELD requires Linux (uses iptables + raw sockets).")
+        print("[Error] MITM-INTERCEPT requires Linux (uses iptables + raw sockets).")
         sys.exit(1)
 
     if os.geteuid() != 0:
-        print("[Error] NEON-SHIELD requires root (ARP spoofing + iptables).")
+        print("[Error] MITM-INTERCEPT requires root (ARP spoofing + iptables).")
         sys.exit(1)
 
     if not confirm_authorization(args.yes):
@@ -765,7 +765,7 @@ def run_auto_mode(args):
 
     print(f"""
 ╔════════════════════════════════════════════════════════════════════╗
-║              🔴 NEON-SHIELD ACTIVE (Educational Mode) 🔴           ║
+║              🔴 MITM-INTERCEPT ACTIVE (Educational Mode) 🔴           ║
 ╠════════════════════════════════════════════════════════════════════╣
 ║                                                                    ║
 ║  Intercept Mode:       ARP Spoofing + Transparent Proxy            ║
@@ -826,7 +826,7 @@ def run_auto_mode_with_config(config):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="NEON-SHIELD MITM Proxy Lab (Educational Use Only)",
+        description="MITM-INTERCEPT MITM Proxy Lab (Educational Use Only)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 EDUCATIONAL PURPOSE ONLY. Unauthorized MITM attacks are illegal.

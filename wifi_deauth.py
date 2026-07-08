@@ -1,5 +1,5 @@
 """
-WiFi Deauthentication Attack for NEON-SHIELD Phase 1B.
+WiFi Deauthentication Attack for MITM-INTERCEPT Phase 1B.
 
 Sends deauth frames to force devices to disconnect from their WiFi network.
 Combined with rogue AP, forces devices to reconnect to our evil twin.

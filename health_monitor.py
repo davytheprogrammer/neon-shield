@@ -1,5 +1,5 @@
 """
-Health monitoring for NEON-SHIELD.
+Health monitoring for MITM-INTERCEPT.
 
 Periodically checks that ARP spoofing and iptables rules are still active,
 and auto-recovers if they fail.
@@ -72,7 +72,7 @@ class HealthMonitor:
                 timeout=5,
             )
             # Look for our comment marker
-            if "neon-shield-auto" in result.stdout:
+            if "mitm-intercept-auto" in result.stdout:
                 return True
         except Exception as e:
             if self.log_checks:

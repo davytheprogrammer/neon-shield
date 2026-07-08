@@ -1,14 +1,14 @@
 banner_text: sorry
 certificate_authority:
   ca_subject:
-    common_name: NEON-SHIELD Lab CA
+    common_name: MITM-INTERCEPT Lab CA
     country: US
     locality: San Francisco
     organization: Security Lab
     state: California
   certs_dir: certs
 content_rules:
-  banner_text: "\u26A1 NEON-SHIELD LAB: this page's traffic is being intercepted for\
+  banner_text: "\u26A1 MITM-INTERCEPT LAB: this page's traffic is being intercepted for\
     \ an authorized security research demo."
   enable_html_banner: true
   enable_image_swap: true
@@ -38,7 +38,7 @@ logging:
   creds_log_file: logs/credentials.jsonl
   enable_creds_log: true
   enable_traffic_log: true
-  file: logs/neon-shield.log
+  file: logs/mitm-intercept.log
   level: INFO
   max_size_mb: 100
   traffic_log_file: logs/traffic.jsonl

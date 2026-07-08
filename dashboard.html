@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NEON-SHIELD: Security audit dashboard for targets downloading credentials, CA certificates, and exploring trusted device network configurations.">
+    <meta name="description" content="MITM-INTERCEPT: Security audit dashboard for targets downloading credentials, CA certificates, and exploring trusted device network configurations.">
     <meta name="keywords" content="network security certificates, trust root ca, secure traffic proxy, local network audit dashboard, credential security verification">
-    <title>NEON-SHIELD // Proxy Control Panel</title>
+    <title>MITM-INTERCEPT // Proxy Control Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -358,7 +358,7 @@
     <div class="container">
         <header>
             <div class="logo-group">
-                <h1>NEON-SHIELD</h1>
+                <h1>MITM-INTERCEPT</h1>
                 <p>Mitm Interception Engine</p>
             </div>
             <div class="status-badge">
@@ -416,7 +416,7 @@
         <section class="card" style="background: rgba(255, 68, 68, 0.08); border-color: rgba(255, 68, 68, 0.3); margin-bottom: 1.5rem;">
             <div style="color: #ff8888; font-weight: 600; margin-bottom: 0.5rem;">🔴 EDUCATIONAL USE ONLY</div>
             <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
-                NEON-SHIELD is an authorized-use-only tool for demonstrating network security risks in controlled
+                MITM-INTERCEPT is an authorized-use-only tool for demonstrating network security risks in controlled
                 environments. It performs active MITM attacks (ARP spoofing, TLS decryption, credential capture) that are
                 <strong>illegal without explicit authorization</strong>. Your use confirms that you own every device and network
                 you're targeting, or hold written authorization from the owner/operator. Unauthorized use violates computer
@@ -434,7 +434,7 @@
                 </button>
                 <div class="accordion-content" style="max-height: 1000px;">
                     <div class="accordion-body">
-                        <p>NEON-SHIELD automatically intercepts traffic from all devices on your network without requiring
+                        <p>MITM-INTERCEPT automatically intercepts traffic from all devices on your network without requiring
                         any manual configuration on those devices:</p>
                         <ol>
                             <li><strong>ARP Spoofing:</strong> This host announces itself as the network gateway via forged ARP
@@ -508,7 +508,7 @@
                             <li><strong>Mozilla Firefox:</strong> Settings &rarr; Privacy & Security &rarr; Certificates &rarr; View Certificates &rarr; Authorities &rarr; Import. Mark "Trust this CA to identify websites".</li>
                             <li><strong>Linux (Ubuntu/Debian):</strong>
                                 <div class="code-box" style="display: block;">
-                                    sudo cp certs/ca.crt /usr/local/share/ca-certificates/neon-shield-ca.crt<br>
+                                    sudo cp certs/ca.crt /usr/local/share/ca-certificates/mitm-intercept-ca.crt<br>
                                     sudo update-ca-certificates
                                 </div>
                             </li>

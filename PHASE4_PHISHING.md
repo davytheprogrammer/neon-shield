@@ -1,4 +1,4 @@
-# 🎣 NEON-SHIELD Phase 4: Phishing Page Generator & Credential Harvesting
+# 🎣 MITM-INTERCEPT Phase 4: Phishing Page Generator & Credential Harvesting
 
 **Clone popular login pages and capture credentials when victims enter them**
 
@@ -196,7 +196,7 @@ Hosts cloned login pages:
 
 **Requirements:**
 - Root privileges (sudo)
-- NEON-SHIELD proxy must be running
+- MITM-INTERCEPT proxy must be running
 - Web server to host pages (included)
 - Redirect URLs must be accessible
 
@@ -263,7 +263,7 @@ Explain phishing attack types:
 
 ### Setup
 
-- Device A: Attacker machine (Linux with NEON-SHIELD)
+- Device A: Attacker machine (Linux with MITM-INTERCEPT)
 - Device B: Victim device (any device with browser)
 - Victim has email account at gmail.com
 

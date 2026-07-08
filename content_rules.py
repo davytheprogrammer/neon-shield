@@ -1,5 +1,5 @@
 """
-Content injection/substitution engine for NEON-SHIELD.
+Content injection/substitution engine for MITM-INTERCEPT.
 
 Replaces the old hardcoded "images only" logic with a small, extensible list
 of rules. Each rule is (matcher_fn, transform_fn, name). The first matching
@@ -26,7 +26,7 @@ BANNER_HTML = (
     b'<div style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;'
     b'background:#0f172a;color:#39ff14;font-family:monospace;font-size:13px;'
     b'padding:6px 12px;border-top:2px solid #39ff14;opacity:0.94;">'
-    b"\xe2\x9a\xa1 NEON-SHIELD LAB: this page's traffic is being intercepted for an "
+    b"\xe2\x9a\xa1 MITM-INTERCEPT LAB: this page's traffic is being intercepted for an "
     b"authorized security research demo.</div>"
 )
 

@@ -1,11 +1,11 @@
-# Pushing NEON-SHIELD to GitHub
+# Pushing MITM-INTERCEPT to GitHub
 
 ## Setup (One-Time)
 
 ### 1. Create a GitHub Repository
 
 1. Go to https://github.com/new
-2. Name it: `neon-shield`
+2. Name it: `mitm-intercept`
 3. Description: "Production-grade Man-in-the-Middle (MITM) proxy & cybersecurity research platform. Executes ARP spoofing, DNS hijacking, SSL/TLS decryption, and dynamic content injection for security audits, penetration testing demonstrations, and educational research."
 4. Make it **Private** (recommended) or Public (your choice)
 5. Click **Create repository**
@@ -13,11 +13,11 @@
 ### 2. Add Remote & Push
 
 ```bash
-# Navigate to neon-shield directory
-cd /home/ogega/Projects/neon-shield
+# Navigate to mitm-intercept directory
+cd /home/ogega/Projects/mitm-intercept
 
 # Add remote (replace YOUR_USERNAME with your GitHub username)
-git remote add origin https://github.com/YOUR_USERNAME/neon-shield.git
+git remote add origin https://github.com/YOUR_USERNAME/mitm-intercept.git
 
 # Set main as default branch
 git branch -M main
@@ -98,4 +98,4 @@ git push origin --tags
 
 ---
 
-That's it! Your NEON-SHIELD repo is now on GitHub. 🎉
+That's it! Your MITM-INTERCEPT repo is now on GitHub. 🎉

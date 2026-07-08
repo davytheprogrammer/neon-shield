@@ -1,5 +1,5 @@
 """
-Phishing Page Generator for NEON-SHIELD Phase 4.
+Phishing Page Generator for MITM-INTERCEPT Phase 4.
 
 Auto-clones popular login pages and captures credentials when users enter them.
 Shows how phishing is the #1 account takeover vector (even more effective than

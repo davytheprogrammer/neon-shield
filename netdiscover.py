@@ -1,5 +1,5 @@
 """
-Local network discovery helpers for NEON-SHIELD auto mode.
+Local network discovery helpers for MITM-INTERCEPT auto mode.
 
 Uses scapy to figure out which interface/gateway/subnet this host is on,
 and to ARP-scan the local subnet for live hosts. Linux-focused (relies on

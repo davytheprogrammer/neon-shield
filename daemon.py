@@ -15,7 +15,7 @@ import websockets
 # Constants
 HOST = "127.0.0.1"
 PORT = 8766
-CONFIG_PATH = Path("neon-shield.yml")
+CONFIG_PATH = Path("mitm-intercept.yml")
 LOGS_DIR = Path("logs_user")
 TRAFFIC_LOG = LOGS_DIR / "traffic.jsonl"
 CREDS_LOG = LOGS_DIR / "credentials.jsonl"
@@ -292,7 +292,7 @@ async def stop_active_process():
             )
             line_numbers = []
             for line in rules_proc.stdout.splitlines():
-                if "neon-shield-auto" in line:
+                if "mitm-intercept-auto" in line:
                     line_numbers.append(int(line.split()[0]))
             for ln in sorted(line_numbers, reverse=True):
                 subprocess.run(["iptables", "-t", "nat", "-D", "PREROUTING", str(ln)], capture_output=True)
@@ -348,7 +348,7 @@ async def handle_action(action, params):
             except Exception as e:
                 return {"status": "error", "message": f"Failed to read config: {e}"}
         else:
-            return {"status": "error", "message": "neon-shield.yml not found"}
+            return {"status": "error", "message": "mitm-intercept.yml not found"}
 
 
     elif action == "save_config":

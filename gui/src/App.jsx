@@ -34,7 +34,7 @@ import "./App.css";
 // Mock helper data for demo mode
 const INITIAL_DEMO_HOSTS = [
   { ip: "192.168.1.1", mac: "00:11:22:33:44:55", vendor: "Cisco Systems", device: "Gateway Router", active: true, os: "Cisco IOS" },
-  { ip: "192.168.1.100", mac: "00:0c:29:ab:cd:ef", vendor: "VMware", device: "NEON-SHIELD Host", active: true, os: "Kali Linux" },
+  { ip: "192.168.1.100", mac: "00:0c:29:ab:cd:ef", vendor: "VMware", device: "MITM-INTERCEPT Host", active: true, os: "Kali Linux" },
   { ip: "192.168.1.105", mac: "a4:cf:99:12:34:56", vendor: "Apple Inc.", device: "Target iPhone 14", active: true, os: "iOS 16.4" },
   { ip: "192.168.1.112", mac: "bc:83:85:67:89:ab", vendor: "Dell Inc.", device: "Target Workstation", active: true, os: "Windows 11 Pro" },
   { ip: "192.168.1.115", mac: "70:ee:50:aa:bb:cc", vendor: "Hikvision", device: "IoT Security Camera", active: true, os: "Embedded Linux" }
@@ -87,7 +87,7 @@ function App() {
     dns_redirects: { "google.com": "192.168.1.100", "office365.com": "192.168.1.100" },
     enable_image_swap: false,
     enable_html_banner: true,
-    banner_text: "⚡ NEON-SHIELD EDUCATION LAB: Intercepted connection."
+    banner_text: "⚡ MITM-INTERCEPT EDUCATION LAB: Intercepted connection."
   });
 
   // UI Drawer/Filters
@@ -182,7 +182,7 @@ function App() {
 
     ws.current.onopen = () => {
       setWsConnected(true);
-      showToast("Connected to NEON-SHIELD Daemon", "success");
+      showToast("Connected to MITM-INTERCEPT Daemon", "success");
       sendAction("get_config").then(res => {
         if (res.status === "success") {
           setConfig(res.config);
@@ -759,7 +759,7 @@ function App() {
       const credCount = credsLog.length;
       const trafficCount = trafficLog.length;
       
-      const markdown = `# NEON-SHIELD EXECUTIVE THREAT INTEL REPORT
+      const markdown = `# MITM-INTERCEPT EXECUTIVE THREAT INTEL REPORT
 **Generated:** ${new Date().toLocaleString()}
 **Classification:** Restricted (Educational SOC)
 **Platform Mode:** ${appMode.toUpperCase()}
@@ -832,7 +832,7 @@ The active attack path demonstrates typical credential-harvesting vectors:
             </div>
             
             <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: "900", letterSpacing: "0.05em", color: "#fff" }}>NEON-SHIELD</h2>
+              <h2 style={{ fontSize: "1.5rem", fontWeight: "900", letterSpacing: "0.05em", color: "#fff" }}>MITM-INTERCEPT</h2>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>Cybersecurity Operations Control Panel v2.0</p>
             </div>
 
@@ -879,7 +879,7 @@ The active attack path demonstrates typical credential-harvesting vectors:
       <aside className="sidebar">
         <div className="sidebar-header" onClick={() => setAppMode(null)} style={{ cursor: "pointer" }}>
           <Shield className="logo-glow" size={24} />
-          <h2>NEON-SHIELD</h2>
+          <h2>MITM-INTERCEPT</h2>
           {appMode === "demo" && <span className="demo-control-badge">Demo</span>}
         </div>
         
@@ -1239,7 +1239,7 @@ The active attack path demonstrates typical credential-harvesting vectors:
                     <g transform="translate(450, 280)" className="topology-node">
                       <circle r="26" fill="#0c0e17" stroke="var(--neon-rose)" strokeWidth="2.5" filter="url(#glow-rose)" />
                       <path d="M-10 -10 L10 10 M10 -10 L-10 10" stroke="var(--neon-rose)" strokeWidth="2" />
-                      <text y="40" textAnchor="middle" fill="var(--text-primary)" fontSize="11" fontWeight="bold">NEON-SHIELD</text>
+                      <text y="40" textAnchor="middle" fill="var(--text-primary)" fontSize="11" fontWeight="bold">MITM-INTERCEPT</text>
                       <text y="53" textAnchor="middle" fill="var(--neon-rose)" fontSize="9.5" fontFamily="monospace">192.168.1.100</text>
                     </g>
 

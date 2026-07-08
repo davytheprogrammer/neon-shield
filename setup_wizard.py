@@ -1,5 +1,5 @@
 """
-Interactive setup wizard for NEON-SHIELD.
+Interactive setup wizard for MITM-INTERCEPT.
 
 Guides users through first-time configuration.
 """
@@ -35,9 +35,9 @@ console = Console()
 
 
 DISCLAIMER = """
-⚠️  NEON-SHIELD EDUCATIONAL USE DISCLAIMER ⚠️
+⚠️  MITM-INTERCEPT EDUCATIONAL USE DISCLAIMER ⚠️
 
-NEON-SHIELD performs ACTIVE MITM ATTACKS on local networks:
+MITM-INTERCEPT performs ACTIVE MITM ATTACKS on local networks:
 • ARP spoofing to intercept traffic from other devices
 • TLS decryption to read HTTPS traffic
 • Credential capture, DNS spoofing, content injection
@@ -125,7 +125,7 @@ def ask_logging() -> Tuple[str, bool, bool]:
 
 def run_wizard() -> dict:
     """Run the full interactive setup wizard."""
-    console.print(Panel("Welcome to NEON-SHIELD Setup", style="bold cyan"))
+    console.print(Panel("Welcome to MITM-INTERCEPT Setup", style="bold cyan"))
 
     # Disclaimer
     if not show_disclaimer():
@@ -165,6 +165,6 @@ def run_wizard() -> dict:
     }
 
     console.print("\n[green]✓ Setup complete![/green]")
-    console.print("Starting NEON-SHIELD...\n")
+    console.print("Starting MITM-INTERCEPT...\n")
 
     return config

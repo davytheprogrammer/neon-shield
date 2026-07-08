@@ -1,5 +1,5 @@
 """
-Transparent-redirect controller for NEON-SHIELD auto mode (Linux only).
+Transparent-redirect controller for MITM-INTERCEPT auto mode (Linux only).
 
 Enables IP forwarding and installs iptables NAT rules that redirect
 plaintext HTTP (port 80) and HTTPS (port 443) traffic passing through this
@@ -12,7 +12,7 @@ All changes made here are tracked and reverted by teardown().
 import subprocess
 
 
-RULE_COMMENT = "neon-shield-auto"
+RULE_COMMENT = "mitm-intercept-auto"
 
 
 def _run(args, check=True):

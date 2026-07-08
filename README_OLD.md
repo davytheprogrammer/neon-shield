@@ -1,4 +1,4 @@
-# ⚡ PROJECT: NEON-SHIELD // MITM PROXY LAB
+# ⚡ PROJECT: MITM-INTERCEPT // MITM PROXY LAB
 
 ```
    _  _ ___ ___  _  _    ___ _  _ ___ ___ _    ___
@@ -8,7 +8,7 @@
       [!] INTERCEPT // INSPECT // TRANSFORM 
 ```
 
-NEON-SHIELD is a modular, high-performance HTTP/HTTPS Man-in-the-Middle (MitM) inspection proxy designed for security research, analysis, and network debugging in isolated environments. By establishing an active decrypting gateway, it intercepts downstream client requests, parses header metadata, and executes on-the-fly content transformation (specifically replacing web images with a custom asset).
+MITM-INTERCEPT is a modular, high-performance HTTP/HTTPS Man-in-the-Middle (MitM) inspection proxy designed for security research, analysis, and network debugging in isolated environments. By establishing an active decrypting gateway, it intercepts downstream client requests, parses header metadata, and executes on-the-fly content transformation (specifically replacing web images with a custom asset).
 
 ---
 
@@ -16,12 +16,12 @@ NEON-SHIELD is a modular, high-performance HTTP/HTTPS Man-in-the-Middle (MitM) i
 
 **THIS PROJECT IS FOR EDUCATIONAL AND AUTHORIZED SECURITY-RESEARCH PURPOSES ONLY.**
 
-NEON-SHIELD performs an active Man-in-the-Middle attack: it decrypts and modifies other devices' traffic. That is only legal and ethical when you have clear authorization to do it. By using this tool you agree that:
+MITM-INTERCEPT performs an active Man-in-the-Middle attack: it decrypts and modifies other devices' traffic. That is only legal and ethical when you have clear authorization to do it. By using this tool you agree that:
 
 * You will **only** run it against networks and devices that you personally own, **or** for which you hold explicit written authorization (e.g. a signed pentest engagement, a CTF you're competing in, or a classroom lab you control).
 * You will **never** run it — especially the `--auto` zero-config network mode — against shared, public, employer, school, or any other network where other people's devices you don't own or have consent for might be present (coffee shops, offices, dorms, airports, etc.). ARP spoofing devices you don't have authorization for is a form of unauthorized network interception/wiretapping and is illegal in most jurisdictions, regardless of intent or how "harmless" the payload (e.g. swapping an image) seems.
 * You understand `--auto` mode actively attacks ARP resolution on the LAN and can disrupt connectivity for every device it targets; only use it in a controlled lab.
-* You are responsible for securing generated CA private keys (`certs/`) and for un-trusting/removing the NEON-SHIELD Root CA and restoring normal proxy/network settings on any device when you're done testing.
+* You are responsible for securing generated CA private keys (`certs/`) and for un-trusting/removing the MITM-INTERCEPT Root CA and restoring normal proxy/network settings on any device when you're done testing.
 
 The author accepts no liability for misuse or damage caused by this utility. If you are not sure you're authorized to run this against a given network or device, **do not run it.**
 
@@ -69,7 +69,7 @@ To intercept and configure a device on your local Wi-Fi:
    http://<proxy-host-ip>:8080
    ```
    *(The terminal console will print your host's local IP address when starting up.)*
-3. You will see the **NEON-SHIELD Dashboard**.
+3. You will see the **MITM-INTERCEPT Dashboard**.
 4. Tap **Download Root CA Certificate** to save `ca.crt` to your device.
 5. Follow the step-by-step instructions on the dashboard corresponding to your device (iOS, Android, or desktop OS) to install and trust the Root CA certificate.
 6. Configure the device's Wi-Fi network settings to use a **Manual Proxy**:
@@ -81,7 +81,7 @@ If testing locally on the proxy host machine:
 
 #### Linux System CA Trust Setup:
 ```bash
-sudo cp certs/ca.crt /usr/local/share/ca-certificates/neon-shield-ca.crt
+sudo cp certs/ca.crt /usr/local/share/ca-certificates/mitm-intercept-ca.crt
 sudo update-ca-certificates
 ```
 
@@ -113,7 +113,7 @@ The default mode above requires you to manually set a proxy and install the CA o
 2. **ARP spoofing** — poisons ARP caches so target devices' traffic routes through this host.
 3. **Transparent NAT redirect** — `iptables` rules silently forward real port 80/443 traffic into the proxy's transparent listeners (no client-side proxy setting needed).
 
-**Important limitation:** ARP spoofing + transparent redirect gets a device's *traffic* flowing through the proxy automatically, but it does **not** bypass certificate validation. Plaintext HTTP images will be substituted immediately. HTTPS sites will still show the browser's untrusted-certificate warning on any device that hasn't separately downloaded and trusted the NEON-SHIELD Root CA (see step 4 of the manual Quickstart, or the dashboard's CA guides) — this tool does not silently defeat TLS.
+**Important limitation:** ARP spoofing + transparent redirect gets a device's *traffic* flowing through the proxy automatically, but it does **not** bypass certificate validation. Plaintext HTTP images will be substituted immediately. HTTPS sites will still show the browser's untrusted-certificate warning on any device that hasn't separately downloaded and trusted the MITM-INTERCEPT Root CA (see step 4 of the manual Quickstart, or the dashboard's CA guides) — this tool does not silently defeat TLS.
 
 ### Requirements
 * Linux host with `iptables` and root privileges (`sudo`).

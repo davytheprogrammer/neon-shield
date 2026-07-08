@@ -1,7 +1,7 @@
 """
-Configuration loader for NEON-SHIELD.
+Configuration loader for MITM-INTERCEPT.
 
-Loads settings from neon-shield.yml, validates, and merges with CLI args
+Loads settings from mitm-intercept.yml, validates, and merges with CLI args
 (CLI args override file settings). Provides type-safe access to config values.
 """
 import os
@@ -23,7 +23,7 @@ class Config:
     # Content Rules
     enable_image_swap: bool = True
     enable_html_banner: bool = True
-    banner_text: str = "⚡ NEON-SHIELD LAB: traffic intercepted for authorized research."
+    banner_text: str = "⚡ MITM-INTERCEPT LAB: traffic intercepted for authorized research."
 
     # DNS
     dns_enabled: bool = False
@@ -31,7 +31,7 @@ class Config:
 
     # Logging
     log_level: str = "INFO"
-    log_file: str = "logs/neon-shield.log"
+    log_file: str = "logs/mitm-intercept.log"
     max_log_size_mb: int = 100
     log_backup_count: int = 5
     enable_traffic_log: bool = True
@@ -45,7 +45,7 @@ class Config:
     ca_state: str = "California"
     ca_locality: str = "San Francisco"
     ca_organization: str = "Security Lab"
-    ca_common_name: str = "NEON-SHIELD Lab CA"
+    ca_common_name: str = "MITM-INTERCEPT Lab CA"
 
     # Interfaces
     dashboard_host: str = "0.0.0.0"
@@ -78,7 +78,7 @@ class Config:
             self.dns_redirects = {}
 
 
-def load_config(config_path: str = "neon-shield.yml") -> Config:
+def load_config(config_path: str = "mitm-intercept.yml") -> Config:
     """
     Load configuration from YAML file.
     If file doesn't exist, returns default Config.

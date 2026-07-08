@@ -1,5 +1,5 @@
 """
-Scoped DNS spoofer for NEON-SHIELD auto mode.
+Scoped DNS spoofer for MITM-INTERCEPT auto mode.
 
 Only resolves an explicit, operator-supplied allow-list of domains to a
 chosen IP (typically this host, to show a local demo/warning page instead of
