@@ -16,3 +16,25 @@
 [2026-07-07 17:46:46] [Daemon] Phishing active. Template: m365, Redirect: https://demoafrica.co/
 [2026-07-07 17:46:59] [Daemon] Client connected: ('127.0.0.1', 54720)
 [2026-07-07 17:47:11] [Daemon] Client connected: ('127.0.0.1', 54732)
+[2026-07-07 17:50:19] [Daemon] Starting WiFi Scan: /usr/bin/python3 main_cli.py phase1 scan-networks --interface wlan0
+[2026-07-07 17:50:19] [Daemon] Process reader started for scan (PID: 985161)
+[2026-07-07 17:50:20] [Daemon] Process scan exited with code 0
+[2026-07-07 17:50:36] [Daemon] Starting Rogue AP: /usr/bin/python3 main_cli.py phase1 ap-mode --interface wlan0 --ssid Corporate_Secure_5G --channel 6 -y
+[2026-07-07 17:50:36] [Daemon] Process reader started for ap (PID: 985398)
+[2026-07-07 17:50:37] [Daemon] Process ap exited with code 1
+[2026-07-07 17:50:45] [Daemon] Starting Rogue AP: /usr/bin/python3 main_cli.py phase1 ap-mode --interface wlan0 --ssid Corporate_Secure_5G --channel 6 -y
+[2026-07-07 17:50:45] [Daemon] Process reader started for ap (PID: 985594)
+[2026-07-07 17:50:45] [Daemon] Process ap exited with code 1
+[2026-07-07 17:53:23] [Daemon] Performing subnet ARP scan on wlp2s0 / 192.168.100.54/24...
+[2026-07-07 17:53:40] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.81,192.168.100.198,192.168.100.212,192.168.100.250
+[2026-07-07 17:53:40] [Daemon] Process reader started for mitm (PID: 988979)
+[2026-07-07 18:04:05] [Daemon] Client disconnected: ('127.0.0.1', 54732) - no close frame received or sent
+[2026-07-07 18:04:05] [Daemon] Client disconnected: ('127.0.0.1', 54720) - no close frame received or sent
+[2026-07-08 09:37:49] [Daemon] Client connected: ('127.0.0.1', 47374)
+[2026-07-08 09:38:02] [Daemon] Performing subnet ARP scan on wlp2s0 / 192.168.100.54/24...
+[2026-07-08 09:38:13] [Daemon] Stopping active process mitm (PID: 988979)
+[2026-07-08 09:38:15] [Daemon] Process mitm exited with code 0
+[2026-07-08 09:38:15] [Daemon] Running network state cleanup...
+[2026-07-08 09:38:15] [Daemon] Cleanup complete.
+[2026-07-08 09:38:25] [Daemon] Starting MITM: /usr/bin/python3 main_cli.py start -y --targets 192.168.100.1,192.168.100.5,192.168.100.81
+[2026-07-08 09:38:25] [Daemon] Process reader started for mitm (PID: 1313737)

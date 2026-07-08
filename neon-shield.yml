@@ -1,131 +1,57 @@
-# NEON-SHIELD Configuration File
-# This file defines the behavior of NEON-SHIELD. All settings can be overridden by CLI flags.
-# Educational use only. See README.md for legal/ethical guidelines.
-
-# Network Configuration
-network:
-  # Interface to use for ARP spoofing. Leave blank to auto-detect.
-  interface: ""
-
-  # Target devices to intercept (comma-separated IPs or CIDR ranges).
-  # Leave blank to auto-discover all devices except gateway.
-  targets: ""
-
-  # Gateway IP (auto-detected if blank)
-  gateway_ip: ""
-
-# Content Manipulation Rules
-content_rules:
-  # Enable image replacement (swap with rax_logo.png)
-  enable_image_swap: true
-
-  # Enable HTML banner injection (add warning to all HTML pages)
-  enable_html_banner: true
-
-  # Custom banner text (shown in bottom-right of HTML pages)
-  banner_text: "⚡ NEON-SHIELD LAB: this page's traffic is being intercepted for an authorized security research demo."
-
-# DNS Spoofing (Optional)
-dns_spoofing:
-  # Enable DNS spoofing for specific domains
-  enabled: false
-
-  # Domain → IP mappings (e.g., "example.com: 192.168.1.1")
-  # Only these domains will be spoofed; everything else goes to real DNS
-  redirects: {}
-    # example.com: 192.168.1.1
-
-# Traffic Logging
-logging:
-  # Log level: DEBUG, INFO, WARN, ERROR
-  level: INFO
-
-  # Path to log file (relative to working directory or absolute)
-  file: logs/neon-shield.log
-
-  # Maximum log file size (MB) before rotation
-  max_size_mb: 100
-
-  # Number of rotated log files to keep
-  backup_count: 5
-
-  # Enable traffic log (every intercepted request/response)
-  enable_traffic_log: true
-
-  # Path to traffic log (JSON lines format)
-  traffic_log_file: logs/traffic.jsonl
-
-  # Enable credentials log
-  enable_creds_log: true
-
-  # Path to credentials log (JSON lines format)
-  creds_log_file: logs/credentials.jsonl
-
-# Certificate Authority
+banner_text: sorry
 certificate_authority:
-  # Directory to store CA and generated certs
-  certs_dir: certs
-
-  # CA certificate subject (customize for your org)
   ca_subject:
+    common_name: NEON-SHIELD Lab CA
     country: US
-    state: California
     locality: San Francisco
-    organization: "Security Lab"
-    common_name: "NEON-SHIELD Lab CA"
-
-# Web Interfaces
+    organization: Security Lab
+    state: California
+  certs_dir: certs
+content_rules:
+  banner_text: "\u26A1 NEON-SHIELD LAB: this page's traffic is being intercepted for\
+    \ an authorized security research demo."
+  enable_html_banner: true
+  enable_image_swap: true
+development:
+  dry_run: false
+  verbose: false
+dns_enabled: true
+dns_spoofing:
+  enabled: false
+  redirects: {}
+enable_html_banner: true
+enable_image_swap: true
+health_monitor:
+  auto_recover: true
+  check_interval: 10
+  enabled: true
+  log_checks: false
 interfaces:
-  # LAN-facing dashboard (for all devices on LAN to download CA cert)
-  dashboard:
-    host: 0.0.0.0
-    port: 8080
-
-  # Loopback-only control panel (traffic/credentials inspection, localhost only)
   control_panel:
     host: 127.0.0.1
     port: 7070
-
-# Transparent Proxy Listener Ports
-transparent:
-  # HTTP transparent listener
-  http_port: 8081
-
-  # HTTPS transparent listener
-  https_port: 8443
-
-  # DNS spoofing listener (if enabled)
-  dns_port: 5353
-
-# Health Monitoring
-health_monitor:
-  # Enable background health checks
-  enabled: true
-
-  # Check interval (seconds)
-  check_interval: 10
-
-  # Auto-recover failed components
-  auto_recover: true
-
-  # Log health check results
-  log_checks: false
-
-# Security & Authorization
+  dashboard:
+    host: 0.0.0.0
+    port: 8080
+logging:
+  backup_count: 5
+  creds_log_file: logs/credentials.jsonl
+  enable_creds_log: true
+  enable_traffic_log: true
+  file: logs/neon-shield.log
+  level: INFO
+  max_size_mb: 100
+  traffic_log_file: logs/traffic.jsonl
+network:
+  gateway_ip: ''
+  interface: ''
+  targets: ''
 security:
-  # Require interactive "YES I UNDERSTAND" confirmation on startup
-  require_confirmation: true
-
-  # Audit log path (logs all authorization confirmations)
-  audit_log: logs/audit.log
-
-  # Rate limit on control panel API (requests per second)
   api_rate_limit: 10
-
-# Development/Testing
-development:
-  # Dry-run mode: validate config without actually spoofing
-  dry_run: false
-
-  # Verbose output
-  verbose: false
+  audit_log: logs/audit.log
+  require_confirmation: true
+targets: 192.168.100.1,192.168.100.5,192.168.100.81
+transparent:
+  dns_port: 5353
+  http_port: 8081
+  https_port: 8443
