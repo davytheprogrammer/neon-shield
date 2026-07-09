@@ -69,7 +69,7 @@ By compiling, deploying, or launching MITM-INTERCEPT, you explicitly assert that
 * **Active Watchdog Monitor:** Background health thread monitors ARP tables and firewall rules, executing automatic repairs upon failure.
 * **Crash-Resilient State Engine:** Log operational states to disk to support automatic restart and cleanup validation.
 * **Dry-Run Mode:** Execute config validations, network interface checks, and routing table reviews without firing active spoofs.
-* **Emergency Tear-down:** Restore routing tables and clear iptables chains instantly with the built-in `cleanup.sh` helper.
+* **Emergency Tear-down:** Restore routing tables and clear iptables chains instantly with the built-in `scripts/cleanup.sh` helper.
 * **Systemd Integration:** Package and run the platform daemon as a persistent system service.
 
 ### 💻 Unified Command-Line Interface
@@ -112,7 +112,7 @@ Verify Python 3.8+ and `pip` are configured on your host system:
 git clone https://github.com/YOUR_USERNAME/mitm-intercept.git
 cd mitm-intercept
 pip install -r requirements.txt
-chmod +x cleanup.sh
+chmod +x scripts/cleanup.sh
 ```
 
 ### 2. Configure Operational Variables
@@ -127,7 +127,7 @@ The assistant prompts for:
 * Activating content injection rules and DNS overrides.
 * Configuring log rotation files.
 
-Parameters are stored in [mitm-intercept.yml](mitm-intercept.yml).
+Parameters are stored in [mitm-intercept.yml](config/mitm-intercept.yml).
 
 ### 3. Initiate Active Mode
 Run the interceptor core:
@@ -151,7 +151,7 @@ sudo python3 main_cli.py start --dns-redirect "example.com:192.168.1.1" -y
 python3 main_cli.py test
 
 # Emergency manual restoration of host iptables and ARP tables
-sudo ./cleanup.sh
+sudo scripts/cleanup.sh
 ```
 
 ---
@@ -159,8 +159,8 @@ sudo ./cleanup.sh
 ## 📖 [0x04] Intelligence Directory
 
 Refer to these files for detailed setup options and structural references:
-* **[SETUP.md](SETUP.md):** Manual deployment options, routing setups, CLI arguments, and recovery steps.
-* **[mitm-intercept.yml](mitm-intercept.yml):** Reference configuration file containing descriptions for all modular attributes.
+* **[SETUP.md](docs/SETUP.md):** Manual deployment options, routing setups, CLI arguments, and recovery steps.
+* **[mitm-intercept.yml](config/mitm-intercept.yml):** Reference configuration file containing descriptions for all modular attributes.
 * **System Help:** Run `python3 main_cli.py --help` to list all command line arguments.
 
 ---
@@ -170,18 +170,18 @@ Refer to these files for detailed setup options and structural references:
 The MITM-INTERCEPT core is divided into discrete, specialized modules:
 
 * **[main_cli.py](main_cli.py):** Main entry point; a Click-based Command Line Interface.
-* **[proxy.py](proxy.py):** Core MITM proxy engine handling HTTP, HTTPS, and DNS socket listeners.
-* **[config.py](config.py):** Schema validation module parsing and enforcing configuration boundaries.
-* **[netdiscover.py](netdiscover.py):** ARP scanning utility mapping active subnets.
-* **[arpspoof.py](arpspoof.py):** Attack script poisoning ARP tables to redirect client traffic.
-* **[iptables_ctl.py](iptables_ctl.py):** Low-level iptables manager configuring system NAT rules.
-* **[content_rules.py](content_rules.py):** Stream modifier wrapper matching and replacing target request-response content.
-* **[creds_capture.py](creds_capture.py):** Scans payloads to locate credentials and cookies.
-* **[traffic_log.py](traffic_log.py):** Collector interface processing traffic logs securely in memory.
-* **[dns_spoof.py](dns_spoof.py):** Local DNS server returning forged IP entries for allow-listed domains.
-* **[health_monitor.py](health_monitor.py):** Watchdog thread verifying route structures and proxy availability.
-* **[state_manager.py](state_manager.py):** State manager verifying cleanup on restarts.
-* **[log_handler.py](log_handler.py):** Structured log writer outputting rotational data.
+* **[src/core/proxy.py](src/core/proxy.py):** Core MITM proxy engine handling HTTP, HTTPS, and DNS socket listeners.
+* **[src/core/config.py](src/core/config.py):** Schema validation module parsing and enforcing configuration boundaries.
+* **[src/networking/netdiscover.py](src/networking/netdiscover.py):** ARP scanning utility mapping active subnets.
+* **[src/networking/arpspoof.py](src/networking/arpspoof.py):** Attack script poisoning ARP tables to redirect client traffic.
+* **[src/networking/iptables_ctl.py](src/networking/iptables_ctl.py):** Low-level iptables manager configuring system NAT rules.
+* **[src/utils/content_rules.py](src/utils/content_rules.py):** Stream modifier wrapper matching and replacing target request-response content.
+* **[src/utils/creds_capture.py](src/utils/creds_capture.py):** Scans payloads to locate credentials and cookies.
+* **[src/utils/traffic_log.py](src/utils/traffic_log.py):** Collector interface processing traffic logs securely in memory.
+* **[src/networking/dns_spoof.py](src/networking/dns_spoof.py):** Local DNS server returning forged IP entries for allow-listed domains.
+* **[src/services/health_monitor.py](src/services/health_monitor.py):** Watchdog thread verifying route structures and proxy availability.
+* **[src/core/state_manager.py](src/core/state_manager.py):** State manager verifying cleanup on restarts.
+* **[src/utils/log_handler.py](src/utils/log_handler.py):** Structured log writer outputting rotational data.
 
 ---
 
@@ -209,7 +209,7 @@ cat logs/credentials.jsonl
 # Step 6: Gracefully restore host network configurations
 sudo python3 main_cli.py stop
 # (Emergency cleanup fallback)
-sudo ./cleanup.sh
+sudo scripts/cleanup.sh
 ```
 
 All logging outputs are structured in JSON Lines format (`.jsonl`), ready to be loaded into analysis engines or visualization platforms.
@@ -277,7 +277,7 @@ source "$HOME/.cargo/env"
 Navigate to the GUI module, install packages, and start compilation:
 
 ```bash
-cd gui
+cd desktop
 npm install
 
 # Run in desktop hot-reload development mode
@@ -287,7 +287,7 @@ npm run tauri dev
 npm run tauri build
 ```
 
-Compiled application binaries (AppImage, deb) are built within `gui/src-tauri/target/release/bundle/`.
+Compiled application binaries (AppImage, deb) are built within `desktop/src-tauri/target/release/bundle/`.
 
 ---
 
@@ -323,7 +323,7 @@ sudo kill -9 <PID>
 ### Method C: Emergency Recovery Script
 Run the script to clear iptables rules and restore network states:
 ```bash
-sudo ./cleanup.sh
+sudo scripts/cleanup.sh
 ```
 
 ---

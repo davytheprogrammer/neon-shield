@@ -19,7 +19,7 @@ StartLimitInterval=60
 StartLimitBurst=3
 
 # Cleanup on stop
-ExecStop=/bin/bash /opt/mitm-intercept/cleanup.sh
+ExecStop=/bin/bash /opt/mitm-intercept/scripts/cleanup.sh
 
 [Install]
 WantedBy=multi-user.target

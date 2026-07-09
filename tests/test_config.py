@@ -1,6 +1,6 @@
 """Tests for config loading and validation."""
 import pytest
-from config import Config, load_config, merge_with_cli, validate_config
+from src.core.config import Config, load_config, merge_with_cli, validate_config
 
 
 def test_config_defaults():

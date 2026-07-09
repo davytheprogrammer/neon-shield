@@ -62,7 +62,7 @@ fn launch_privileged_daemon(password: String) -> Result<DaemonLaunchResult, Stri
     }
 
     let root = project_root();
-    let daemon_path = root.join("daemon.py");
+    let daemon_path = root.join("src").join("services").join("daemon.py");
     if !daemon_path.exists() {
         return Err(format!("daemon.py not found at {}", daemon_path.display()));
     }

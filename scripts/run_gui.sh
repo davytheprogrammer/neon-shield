@@ -13,15 +13,17 @@ echo -e "======================================"
 
 # Ensure we're in the repository root directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-cd "$SCRIPT_DIR"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." &> /dev/null && pwd )"
+cd "$PROJECT_ROOT"
 
 # 1. Start the privileged backend daemon
 echo -e "\n${YELLOW}[*] Starting Privileged Background Daemon...${NC}"
 echo -e "This requires root privileges to configure network interfaces, iptables, and scapy."
 export NEON_SHIELD_DAEMON_URL="ws://127.0.0.1:8765"
+export NEON_SHIELD_PROJECT_ROOT="$PROJECT_ROOT"
 
 # Check if daemon is already running
-if pgrep -f "python3 daemon.py" > /dev/null; then
+if pgrep -f "python3 src/services/daemon.py" > /dev/null; then
     echo -e "${GREEN}[✓] Daemon is already running.${NC}"
     export NEON_SHIELD_DAEMON_TOKEN=""
 else
@@ -29,7 +31,9 @@ else
     export NEON_SHIELD_DAEMON_TOKEN="$DAEMON_TOKEN"
 
     # Launch daemon in background with sudo
-    sudo NEON_SHIELD_DAEMON_TOKEN="$DAEMON_TOKEN" python3 daemon.py &
+    sudo NEON_SHIELD_DAEMON_TOKEN="$DAEMON_TOKEN" \
+         NEON_SHIELD_PROJECT_ROOT="$PROJECT_ROOT" \
+         python3 src/services/daemon.py &
     DAEMON_PID=$!
     
     # Wait to ensure daemon binds successfully
@@ -41,14 +45,14 @@ else
         # Set trap to kill daemon on script exit
         trap "echo -e '\n${RED}[*] Stopping daemon...${NC}'; sudo kill $DAEMON_PID; exit" INT TERM EXIT
     else
-        echo -e "${RED}[✗] Failed to start daemon. Please check logs/daemon.log${NC}"
+        echo -e "${RED}[✗] Failed to start daemon. Please check logs_user/daemon.log${NC}"
         exit 1
     fi
 fi
 
 # 2. Start the Tauri GUI Application
 echo -e "\n${YELLOW}[*] Starting Tauri Desktop Client (User Space)...${NC}"
-cd gui
+cd desktop
 
 # Check if npm dependencies are installed (node_modules exists)
 if [ ! -d "node_modules" ]; then
